@@ -60,7 +60,7 @@ public class MiaLogEventManager {
         FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
         double revenue = impressionData.getRevenue(); // In USD
         Bundle params = new Bundle();
-        params.putString(FirebaseAnalytics.Param.AD_PLATFORM, "AppLovin");
+        params.putString(FirebaseAnalytics.Param.AD_PLATFORM, "Max");
         params.putString(FirebaseAnalytics.Param.AD_SOURCE, impressionData.getNetworkName());
         params.putString(FirebaseAnalytics.Param.AD_FORMAT, impressionData.getFormat().getLabel());
         params.putString(FirebaseAnalytics.Param.AD_UNIT_NAME, impressionData.getAdUnitId());
