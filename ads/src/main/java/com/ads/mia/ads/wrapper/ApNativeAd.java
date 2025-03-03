@@ -7,6 +7,7 @@ import com.google.android.gms.ads.nativead.NativeAd;
 public class ApNativeAd extends ApAdBase {
     private int layoutCustomNative;
     private View nativeView;
+    private NativeAd admobNativeAd;
 
     public ApNativeAd(StatusAd status) {
         super(status);
@@ -18,10 +19,29 @@ public class ApNativeAd extends ApAdBase {
         status = StatusAd.AD_LOADED;
     }
 
+    public ApNativeAd(int layoutCustomNative, NativeAd admobNativeAd) {
+        this.layoutCustomNative = layoutCustomNative;
+        this.admobNativeAd = admobNativeAd;
+        status = StatusAd.AD_LOADED;
+    }
+
+    public NativeAd getAdmobNativeAd() {
+        return admobNativeAd;
+    }
+
+    public void setAdmobNativeAd(NativeAd admobNativeAd) {
+        this.admobNativeAd = admobNativeAd;
+        if (admobNativeAd != null)
+            status = StatusAd.AD_LOADED;
+    }
+
+    public ApNativeAd() {
+    }
+
 
     @Override
     boolean isReady() {
-        return nativeView != null;
+        return nativeView != null || admobNativeAd != null;
     }
 
 
@@ -42,7 +62,6 @@ public class ApNativeAd extends ApAdBase {
     }
 
     public String toString() {
-        return "Status:" + status + " == nativeView:" + nativeView;
+        return "Status:" + status + " == nativeView:" + nativeView + " == admobNativeAd:" + admobNativeAd;
     }
-
 }

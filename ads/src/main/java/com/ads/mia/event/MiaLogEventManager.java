@@ -27,8 +27,8 @@ public class MiaLogEventManager {
         logEventWithAds(context, (float) adValue.getValueMicros(), adValue.getPrecisionType(), adUnitId, mediationAdapterClassName, MiaAdConfig.PROVIDER_ADMOB);
         MiaAdjust.pushTrackEventAdmob(adValue);
         // Log revenue Facebook 30/08
-        /*float value = adValue.getValueMicros() * 1.0f / 1000000 * 25000;
-        AppEventsLogger.newLogger(context).logPurchase(BigDecimal.valueOf(value), Currency.getInstance("VND"));*/
+        float value = adValue.getValueMicros() * 1.0f / 1000000 * 25000;
+        AppEventsLogger.newLogger(context).logPurchase(BigDecimal.valueOf(value), Currency.getInstance("VND"));
     }
 
     public static void logPaidAdjustWithToken(AdValue adValue, String adUnitId, String token) {
