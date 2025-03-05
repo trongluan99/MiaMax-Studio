@@ -7,20 +7,30 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.max.ads.mia.event.MiaLogEventManager;
-import com.max.ads.mia.funtion.AdType;
 import com.applovin.mediation.MaxAd;
 import com.applovin.mediation.MaxAdListener;
 import com.applovin.mediation.MaxAdRevenueListener;
 import com.applovin.mediation.MaxError;
 import com.applovin.mediation.ads.MaxAppOpenAd;
 import com.applovin.sdk.AppLovinSdk;
+import com.max.ads.mia.event.MiaLogEventManager;
+import com.max.ads.mia.funtion.AdType;
 
 
 public class MaxOpenSplashManager {
     private static final String TAG = "MaxOpenSplashManager";
     private MaxAppOpenAd openAdSplash;
     private boolean isShowingAd = false;
+
+    private static MaxOpenSplashManager instance;
+
+    public static MaxOpenSplashManager getInstance() {
+        if (instance == null) {
+            instance = new MaxOpenSplashManager();
+            instance.isShowingAd = false;
+        }
+        return instance;
+    }
 
     public void loadOpenMaxSplash(Context context, String idOpenSplash, int timeDelay, int timeOut, boolean isShowAdIfReady, MaxAdCallback adCallback) {
         if (!isNetworkConnected(context)) {
