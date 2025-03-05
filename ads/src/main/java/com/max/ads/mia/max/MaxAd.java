@@ -16,6 +16,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.max.ads.mia.R;
+import com.max.ads.mia.admob.AppOpenManager;
 import com.max.ads.mia.billing.AppPurchase;
 import com.max.ads.mia.dialog.PrepareLoadingAdsDialog;
 import com.max.ads.mia.event.MiaLogEventManager;
@@ -179,6 +180,7 @@ public class MaxAd {
             @Override
             public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
+                AppOpenManager.getInstance().setInterstitialShowing(true);
             }
 
             @Override
@@ -275,6 +277,7 @@ public class MaxAd {
             @Override
             public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
+                AppOpenManager.getInstance().setInterstitialShowing(true);
             }
 
             @Override
@@ -342,6 +345,7 @@ public class MaxAd {
             public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
                 Log.d(TAG, "onAdDisplayed: ");
                 AppOpenMax.getInstance().setInterstitialShowing(true);
+                AppOpenManager.getInstance().setInterstitialShowing(true);
                 if (adListener != null) {
                     adListener.onAdImpression();
                 }
@@ -351,6 +355,7 @@ public class MaxAd {
             public void onAdHidden(com.applovin.mediation.MaxAd ad) {
                 Log.d(TAG, "onAdHidden: " + ((AppCompatActivity) activity).getLifecycle().getCurrentState());
                 AppOpenMax.getInstance().setInterstitialShowing(false);
+                AppOpenManager.getInstance().setInterstitialShowing(false);
                 isShowLoadingSplash = false;
                 if (adListener != null && ((AppCompatActivity) activity).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                     adListener.onAdClosed();
@@ -511,6 +516,7 @@ public class MaxAd {
             @Override
             public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
+                AppOpenManager.getInstance().setInterstitialShowing(true);
                 SharePreferenceUtils.setLastImpressionInterstitialTime(context);
             }
 
@@ -518,6 +524,7 @@ public class MaxAd {
             @Override
             public void onAdHidden(com.applovin.mediation.MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(false);
+                AppOpenManager.getInstance().setInterstitialShowing(false);
                 if (callback != null && ((AppCompatActivity) context).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                     callback.onAdClosed();
                     if (shouldReloadAds) {

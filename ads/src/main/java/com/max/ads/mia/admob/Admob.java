@@ -28,12 +28,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.max.ads.mia.R;
-import com.max.ads.mia.billing.AppPurchase;
-import com.max.ads.mia.dialog.PrepareLoadingAdsDialog;
-import com.max.ads.mia.event.MiaLogEventManager;
-import com.max.ads.mia.funtion.AdType;
-import com.max.ads.mia.util.SharePreferenceUtils;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdError;
@@ -62,6 +56,13 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.max.ads.mia.R;
+import com.max.ads.mia.billing.AppPurchase;
+import com.max.ads.mia.dialog.PrepareLoadingAdsDialog;
+import com.max.ads.mia.event.MiaLogEventManager;
+import com.max.ads.mia.funtion.AdType;
+import com.max.ads.mia.max.AppOpenMax;
+import com.max.ads.mia.util.SharePreferenceUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -412,12 +413,14 @@ public class Admob {
             @Override
             public void onAdShowedFullScreenContent() {
                 AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
                 isShowLoadingSplash = false;
             }
 
             @Override
             public void onAdDismissedFullScreenContent() {
                 AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
                 mInterstitialSplash = null;
                 if (adListener != null) {
                     if (!openActivityAfterShowInterAds) {
@@ -473,6 +476,7 @@ public class Admob {
                 try {
                     dialog.show();
                     AppOpenManager.getInstance().setInterstitialShowing(true);
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
                 } catch (Exception e) {
                     assert adListener != null;
                     adListener.onNextAction();
@@ -548,12 +552,14 @@ public class Admob {
             @Override
             public void onAdShowedFullScreenContent() {
                 AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
                 isShowLoadingSplash = false;
             }
 
             @Override
             public void onAdDismissedFullScreenContent() {
                 AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
                 mInterstitialSplash = null;
                 if (adListener != null) {
                     if (!openActivityAfterShowInterAds) {
@@ -609,6 +615,7 @@ public class Admob {
                 try {
                     dialog.show();
                     AppOpenManager.getInstance().setInterstitialShowing(true);
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
                 } catch (Exception e) {
                     adListener.onNextAction();
                     return;
@@ -731,6 +738,7 @@ public class Admob {
             public void onAdDismissedFullScreenContent() {
                 super.onAdDismissedFullScreenContent();
                 AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
                 SharePreferenceUtils.setLastImpressionInterstitialTime(context);
                 if (callback != null) {
                     if (!openActivityAfterShowInterAds) {
@@ -762,6 +770,7 @@ public class Admob {
             public void onAdShowedFullScreenContent() {
                 super.onAdShowedFullScreenContent();
                 AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
             }
 
             @Override
@@ -803,6 +812,7 @@ public class Admob {
                         callback.onInterstitialShow();
                         dialog.show();
                         AppOpenManager.getInstance().setInterstitialShowing(true);
+                        AppOpenMax.getInstance().setInterstitialShowing(true);
                     } catch (Exception e) {
                         callback.onNextAction();
                         return;
@@ -1821,7 +1831,7 @@ public class Admob {
                         adCallback.onRewardedAdClosed();
 
                     AppOpenManager.getInstance().setInterstitialShowing(false);
-
+                    AppOpenMax.getInstance().setInterstitialShowing(false);
                 }
 
                 @Override
@@ -1834,8 +1844,8 @@ public class Admob {
                 @Override
                 public void onAdShowedFullScreenContent() {
                     super.onAdShowedFullScreenContent();
-
                     AppOpenManager.getInstance().setInterstitialShowing(true);
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
                     rewardedAd = null;
                 }
 
@@ -1877,7 +1887,7 @@ public class Admob {
                         adCallback.onRewardedAdClosed();
 
                     AppOpenManager.getInstance().setInterstitialShowing(false);
-
+                    AppOpenMax.getInstance().setInterstitialShowing(false);
                 }
 
                 @Override
@@ -1892,7 +1902,7 @@ public class Admob {
                     super.onAdShowedFullScreenContent();
 
                     AppOpenManager.getInstance().setInterstitialShowing(true);
-
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
                 }
 
                 public void onAdClicked() {
@@ -1931,9 +1941,8 @@ public class Admob {
                     if (adCallback != null)
                         adCallback.onRewardedAdClosed();
 
-
                     AppOpenManager.getInstance().setInterstitialShowing(false);
-
+                    AppOpenMax.getInstance().setInterstitialShowing(false);
                 }
 
                 @Override
@@ -1948,6 +1957,7 @@ public class Admob {
                     super.onAdShowedFullScreenContent();
 
                     AppOpenManager.getInstance().setInterstitialShowing(true);
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
                     initRewardAds(context, nativeId);
                 }
 
@@ -2633,6 +2643,8 @@ public class Admob {
                 super.onAdShowedFullScreenContent();
                 isShowInterstitialSplashSuccess = true;
                 AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().disableAppResume();
                 AppOpenManager.getInstance().disableAppResume();
                 isShowLoadingSplash = true;
                 mInterSplashHigh1 = null;
@@ -2642,6 +2654,8 @@ public class Admob {
             public void onAdDismissedFullScreenContent() {
                 super.onAdDismissedFullScreenContent();
                 AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().enableAppResume();
                 AppOpenManager.getInstance().enableAppResume();
                 mInterSplashHigh1 = null;
                 if (adListener != null) {
@@ -2867,6 +2881,8 @@ public class Admob {
                 super.onAdShowedFullScreenContent();
                 isShowInterstitialSplashSuccess = true;
                 AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().disableAppResume();
                 AppOpenManager.getInstance().disableAppResume();
                 isShowLoadingSplash = false;
                 mInterSplashHigh2 = null;
@@ -2877,6 +2893,8 @@ public class Admob {
                 super.onAdDismissedFullScreenContent();
                 Log.d(TAG, " Splash:onAdDismissedFullScreenContent ");
                 AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().enableAppResume();
                 AppOpenManager.getInstance().enableAppResume();
                 mInterSplashHigh2 = null;
                 if (adListener != null) {
@@ -3102,6 +3120,8 @@ public class Admob {
                 super.onAdShowedFullScreenContent();
                 isShowInterstitialSplashSuccess = true;
                 AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().disableAppResume();
                 AppOpenManager.getInstance().disableAppResume();
                 isShowLoadingSplash = false;
                 mInterSplashHigh3 = null;
@@ -3112,6 +3132,8 @@ public class Admob {
                 super.onAdDismissedFullScreenContent();
                 Log.d(TAG, " Splash:onAdDismissedFullScreenContent ");
                 AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().enableAppResume();
                 AppOpenManager.getInstance().enableAppResume();
                 mInterSplashHigh3 = null;
                 if (adListener != null) {
@@ -3346,12 +3368,14 @@ public class Admob {
             public void onAdShowedFullScreenContent() {
                 isShowInterstitialSplashSuccess = true;
                 AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
                 isShowLoadingSplash = false;
             }
 
             @Override
             public void onAdDismissedFullScreenContent() {
                 AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
                 mInterSplashNormal = null;
                 if (adListener != null) {
                     if (!openActivityAfterShowInterAds) {
@@ -3407,6 +3431,7 @@ public class Admob {
                 try {
                     dialog.show();
                     AppOpenManager.getInstance().setInterstitialShowing(true);
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
                 } catch (Exception e) {
                     assert adListener != null;
                     adListener.onNextAction();
