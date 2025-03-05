@@ -243,11 +243,11 @@ public class MiaAd {
         MaxAds.getInstance().loadBannerFragment(mActivity, id, rootView, adCallback);
     }
 
-    public void loadSplashInterstitialAdsMax(AppCompatActivity context, String id, long timeOut, long timeDelay, MaxAdCallback adListener) {
+    public void loadSplashInterstitialAdsMax(Activity context, String id, long timeOut, long timeDelay, MaxAdCallback adListener) {
         MaxAds.getInstance().loadSplashInterstitialAds(context, id, timeOut, timeDelay, true, adListener);
     }
 
-    public void onCheckShowSplashWhenFailMax(AppCompatActivity activity, MaxAdCallback callback, int timeDelay) {
+    public void onCheckShowSplashWhenFailMax(Activity activity, MaxAdCallback callback, int timeDelay) {
         MaxAds.getInstance().onCheckShowSplashWhenFail(activity, callback, timeDelay);
     }
 
@@ -290,7 +290,7 @@ public class MiaAd {
         return apInterstitialAd;
     }
 
-    public void forceShowInterstitialMax(@NonNull AppCompatActivity context, ApInterstitialAd mInterstitialAd,
+    public void forceShowInterstitialMax(@NonNull Activity context, ApInterstitialAd mInterstitialAd,
                                          @NonNull final MaxAdCallback callback, boolean shouldReloadAds) {
         if (System.currentTimeMillis() - SharePreferenceUtils.getLastImpressionInterstitialTime(context)
                 < MiaAd.getInstance().adConfig.getIntervalInterstitialAd() * 1000L

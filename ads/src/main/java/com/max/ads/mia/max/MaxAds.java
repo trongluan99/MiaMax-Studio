@@ -221,7 +221,7 @@ public class MaxAds {
         });
     }
 
-    public void loadSplashInterstitialAds(final AppCompatActivity context, String id, long timeOut, long timeDelay, boolean showSplashIfReady, MaxAdCallback adListener) {
+    public void loadSplashInterstitialAds(final Activity context, String id, long timeOut, long timeDelay, boolean showSplashIfReady, MaxAdCallback adListener) {
         isTimeDelay = false;
         isTimeout = false;
         Log.i(TAG, "loadSplashInterstitialAds  start time loading:" + Calendar.getInstance().getTimeInMillis() + " ShowLoadingSplash:" + isShowLoadingSplash);
@@ -321,7 +321,7 @@ public class MaxAds {
         });
     }
 
-    public void onShowSplash(AppCompatActivity activity, MaxAdCallback adListener) {
+    public void onShowSplash(Activity activity, MaxAdCallback adListener) {
         isShowLoadingSplash = true;
         Log.d(TAG, "onShowSplash: ");
         if (handlerTimeout != null && rdTimeout != null) {
@@ -359,11 +359,10 @@ public class MaxAds {
 
             @Override
             public void onAdHidden(MaxAd ad) {
-                Log.d(TAG, "onAdHidden: " + activity.getLifecycle().getCurrentState());
                 AppOpenMax.getInstance().setInterstitialShowing(false);
                 AppOpenManager.getInstance().setInterstitialShowing(false);
                 isShowLoadingSplash = false;
-                if (adListener != null && activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                if (adListener != null && ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                     if (!openActivityAfterShowInterAds) {
                         adListener.onNextAction();
                     }
@@ -451,7 +450,7 @@ public class MaxAds {
         }
     }
 
-    public void onCheckShowSplashWhenFail(AppCompatActivity activity, MaxAdCallback callback, int timeDelay) {
+    public void onCheckShowSplashWhenFail(Activity activity, MaxAdCallback callback, int timeDelay) {
         if (MaxAds.getInstance().getInterstitialSplash() != null && !MaxAds.getInstance().isShowLoadingSplash) {
             new Handler(activity.getMainLooper()).postDelayed(() -> {
                 if (MaxAds.getInstance().getInterstitialSplash().isReady()) {
@@ -518,7 +517,7 @@ public class MaxAds {
         showInterstitialAdByTimes(context, interstitialAd, callback, shouldReload);
     }
 
-    public void showInterstitialAdByTimes(final AppCompatActivity context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, final boolean shouldReloadAds) {
+    public void showInterstitialAdByTimes(final Activity context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, final boolean shouldReloadAds) {
         MaxHelper.setupMaxData(context);
         if (AppPurchase.getInstance().isPurchased(context)) {
             Log.d("DEV_ADS", "showInterstitialAdByTimes: 1");
@@ -558,7 +557,7 @@ public class MaxAds {
             public void onAdHidden(MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(false);
                 AppOpenManager.getInstance().setInterstitialShowing(false);
-                if (callback != null && context.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                if (callback != null && ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                     callback.onAdClosed();
                     if (!openActivityAfterShowInterAds) {
                         callback.onNextAction();
@@ -570,7 +569,7 @@ public class MaxAds {
                         dialog.dismiss();
                     }
                 }
-                Log.d(TAG, "onAdHidden: " + context.getLifecycle().getCurrentState());
+                Log.d(TAG, "onAdHidden: " + ProcessLifecycleOwner.get().getLifecycle().getCurrentState());
                 Log.d("DEV_ADS", "onAdHidden: ");
             }
 
@@ -614,7 +613,7 @@ public class MaxAds {
         }
     }
 
-    private void showInterstitialAd(AppCompatActivity context, MaxInterstitialAd interstitialAd, MaxAdCallback callback) {
+    private void showInterstitialAd(Activity context, MaxInterstitialAd interstitialAd, MaxAdCallback callback) {
         currentClicked++;
         if (currentClicked >= numShowAds && interstitialAd != null) {
             if (ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
@@ -634,7 +633,7 @@ public class MaxAds {
                 }
 
                 new Handler().postDelayed(() -> {
-                    if (context.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                    if (ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                         if (openActivityAfterShowInterAds && callback != null) {
                             callback.onNextAction();
                             new Handler().postDelayed(() -> {
