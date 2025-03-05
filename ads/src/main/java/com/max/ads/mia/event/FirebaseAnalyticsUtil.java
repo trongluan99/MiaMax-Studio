@@ -13,6 +13,11 @@ public class FirebaseAnalyticsUtil {
         FirebaseAnalytics.getInstance(context).logEvent("paid_ad_impression", params);
     }
 
+    public static void logEventWithAds(Context context, String event, Bundle params) {
+        FirebaseAnalytics.getInstance(context).logEvent(event, params);
+    }
+
+
     static void logPaidAdImpressionValue(Context context, Bundle bundle, int mediationProvider) {
         if (mediationProvider == MiaAdConfig.PROVIDER_MAX)
             FirebaseAnalytics.getInstance(context).logEvent("max_paid_ad_impression_value", bundle);

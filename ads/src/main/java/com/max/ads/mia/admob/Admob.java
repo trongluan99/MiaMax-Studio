@@ -819,7 +819,6 @@ public class Admob {
                     }
                 } catch (Exception e) {
                     dialog = null;
-                    e.printStackTrace();
                 }
                 new Handler().postDelayed(() -> {
                     if (((AppCompatActivity) context).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -142,47 +143,32 @@ public class MiaAd {
         // Change the log level.
         config.setLogLevel(LogLevel.VERBOSE);
         config.setPreinstallTrackingEnabled(true);
-        config.setOnAttributionChangedListener(new OnAttributionChangedListener() {
-            @Override
-            public void onAttributionChanged(AdjustAttribution attribution) {
-                Log.d(TAG_ADJUST, "Attribution callback called!");
-                Log.d(TAG_ADJUST, "Attribution: " + attribution.toString());
-            }
+        config.setOnAttributionChangedListener(attribution -> {
+            Log.d(TAG_ADJUST, "Attribution callback called!");
+            Log.d(TAG_ADJUST, "Attribution: " + attribution.toString());
         });
 
         // Set event success tracking delegate.
-        config.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
-            @Override
-            public void onFinishedEventTrackingSucceeded(AdjustEventSuccess eventSuccessResponseData) {
-                Log.d(TAG_ADJUST, "Event success callback called!");
-                Log.d(TAG_ADJUST, "Event success data: " + eventSuccessResponseData.toString());
-            }
+        config.setOnEventTrackingSucceededListener(eventSuccessResponseData -> {
+            Log.d(TAG_ADJUST, "Event success callback called!");
+            Log.d(TAG_ADJUST, "Event success data: " + eventSuccessResponseData.toString());
         });
         // Set event failure tracking delegate.
-        config.setOnEventTrackingFailedListener(new OnEventTrackingFailedListener() {
-            @Override
-            public void onFinishedEventTrackingFailed(AdjustEventFailure eventFailureResponseData) {
-                Log.d(TAG_ADJUST, "Event failure callback called!");
-                Log.d(TAG_ADJUST, "Event failure data: " + eventFailureResponseData.toString());
-            }
+        config.setOnEventTrackingFailedListener(eventFailureResponseData -> {
+            Log.d(TAG_ADJUST, "Event failure callback called!");
+            Log.d(TAG_ADJUST, "Event failure data: " + eventFailureResponseData.toString());
         });
 
         // Set session success tracking delegate.
-        config.setOnSessionTrackingSucceededListener(new OnSessionTrackingSucceededListener() {
-            @Override
-            public void onFinishedSessionTrackingSucceeded(AdjustSessionSuccess sessionSuccessResponseData) {
-                Log.d(TAG_ADJUST, "Session success callback called!");
-                Log.d(TAG_ADJUST, "Session success data: " + sessionSuccessResponseData.toString());
-            }
+        config.setOnSessionTrackingSucceededListener(sessionSuccessResponseData -> {
+            Log.d(TAG_ADJUST, "Session success callback called!");
+            Log.d(TAG_ADJUST, "Session success data: " + sessionSuccessResponseData.toString());
         });
 
         // Set session failure tracking delegate.
-        config.setOnSessionTrackingFailedListener(new OnSessionTrackingFailedListener() {
-            @Override
-            public void onFinishedSessionTrackingFailed(AdjustSessionFailure sessionFailureResponseData) {
-                Log.d(TAG_ADJUST, "Session failure callback called!");
-                Log.d(TAG_ADJUST, "Session failure data: " + sessionFailureResponseData.toString());
-            }
+        config.setOnSessionTrackingFailedListener(sessionFailureResponseData -> {
+            Log.d(TAG_ADJUST, "Session failure callback called!");
+            Log.d(TAG_ADJUST, "Session failure data: " + sessionFailureResponseData.toString());
         });
 
 
@@ -292,9 +278,14 @@ public class MiaAd {
 
     public void forceShowInterstitialMax(@NonNull Activity context, ApInterstitialAd mInterstitialAd,
                                          @NonNull final MaxAdCallback callback, boolean shouldReloadAds) {
+        if(!isNetworkConnected(context)){
+            callback.onNextAction();
+            return;
+        }
         if (System.currentTimeMillis() - SharePreferenceUtils.getLastImpressionInterstitialTime(context)
                 < MiaAd.getInstance().adConfig.getIntervalInterstitialAd() * 1000L
         ) {
+            Log.d(TAG, "forceShowInterstitialMax: " + System.currentTimeMillis() + "-------" + SharePreferenceUtils.getLastImpressionInterstitialTime(context) + "-------" + SharePreferenceUtils.getLastImpressionInterstitialTime(context));
             callback.onNextAction();
             return;
         }
@@ -489,6 +480,11 @@ public class MiaAd {
 
     public void forceShowInterstitialAdmob(@NonNull Context context, ApInterstitialAd mInterstitialAd,
                                            @NonNull final AdmobAdCallback callback, boolean shouldReloadAds) {
+        if(!isNetworkConnected(context)){
+            callback.onNextAction();
+            return;
+        }
+
         if (System.currentTimeMillis() - SharePreferenceUtils.getLastImpressionInterstitialTime(context)
                 < MiaAd.getInstance().adConfig.getIntervalInterstitialAd() * 1000L
         ) {
@@ -1012,6 +1008,10 @@ public class MiaAd {
     }
 
     public void forceShowInterstitialPriorityAdmob(Context context, ApInterstitialPriorityAd apInterstitialPriorityAd, AdmobAdCallback adCallback, boolean isReloadAds) {
+        if(!isNetworkConnected(context)){
+            adCallback.onNextAction();
+            return;
+        }
         ApInterstitialAd interstitialAd;
         if (apInterstitialPriorityAd.getHigh1PriorityInterstitialAd() != null
                 && apInterstitialPriorityAd.getHigh1PriorityInterstitialAd().isReady()
@@ -1081,5 +1081,10 @@ public class MiaAd {
                 },
                 false
         );
+    }
+
+    private boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
 }

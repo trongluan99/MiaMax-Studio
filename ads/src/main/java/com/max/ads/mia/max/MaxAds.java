@@ -1052,20 +1052,27 @@ public class MaxAds {
             @Override
             public void onAdDisplayed(MaxAd ad) {
                 Log.d(TAG, "onAdDisplayed: ");
+                callback.onAdDisplayed();
+                AppOpenManager.getInstance().setInterstitialShowing(true);
+                AppOpenMax.getInstance().setInterstitialShowing(true);
             }
 
             @Override
             public void onAdHidden(MaxAd ad) {
                 callback.onAdClosed();
                 Log.d(TAG, "onAdHidden: ");
+                AppOpenManager.getInstance().setInterstitialShowing(false);
+                AppOpenMax.getInstance().setInterstitialShowing(false);
             }
 
             @Override
             public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 callback.onAdClicked();
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
             }
 
             @Override
@@ -1124,20 +1131,27 @@ public class MaxAds {
                 @Override
                 public void onAdDisplayed(MaxAd ad) {
                     Log.d(TAG, "onAdDisplayed: ");
+                    callback.onAdDisplayed();
+                    AppOpenManager.getInstance().setInterstitialShowing(true);
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
                 }
 
                 @Override
                 public void onAdHidden(MaxAd ad) {
                     callback.onAdClosed();
                     Log.d(TAG, "onAdHidden: ");
+                    AppOpenManager.getInstance().setInterstitialShowing(false);
+                    AppOpenMax.getInstance().setInterstitialShowing(false);
                 }
 
                 @Override
                 public void onAdClicked(MaxAd ad) {
                     MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                     callback.onAdClicked();
-                    if (disableAdResumeWhenClickAds)
+                    if (disableAdResumeWhenClickAds){
                         AppOpenMax.getInstance().disableAdResumeByClickAction();
+                        AppOpenManager.getInstance().disableAdResumeByClickAction();
+                    }
                 }
 
                 @Override

@@ -6,14 +6,14 @@ import android.util.Log;
 
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustEvent;
-import com.max.ads.mia.config.MiaAdConfig;
-import com.max.ads.mia.funtion.AdType;
-import com.max.ads.mia.util.AppUtil;
-import com.max.ads.mia.util.SharePreferenceUtils;
 import com.applovin.mediation.MaxAd;
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.ads.AdValue;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.max.ads.mia.config.MiaAdConfig;
+import com.max.ads.mia.funtion.AdType;
+import com.max.ads.mia.util.AppUtil;
+import com.max.ads.mia.util.SharePreferenceUtils;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -28,6 +28,18 @@ public class MiaLogEventManager {
         // Log revenue Facebook 30/08
         float value = adValue.getValueMicros() * 1.0f / 1000000 * 25000;
         AppEventsLogger.newLogger(context).logPurchase(BigDecimal.valueOf(value), Currency.getInstance("VND"));
+    }
+
+    public static void logPaidAdImpressionAdmob(Context context, AdValue adValue, String adUnitId, String network) {
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        double revenue = adValue.getValueMicros() * 1.0f / 1000000; // In USD
+        Bundle params = new Bundle();
+        params.putString(FirebaseAnalytics.Param.AD_PLATFORM, "Admob");
+        params.putString(FirebaseAnalytics.Param.AD_SOURCE, network);
+        params.putString(FirebaseAnalytics.Param.AD_UNIT_NAME, adUnitId);
+        params.putDouble(FirebaseAnalytics.Param.VALUE, revenue);
+        params.putString(FirebaseAnalytics.Param.CURRENCY, "USD");
+        mFirebaseAnalytics.logEvent("admob_max_ad_impression", params);
     }
 
     public static void logPaidAdjustWithToken(AdValue adValue, String adUnitId, String token) {
@@ -61,11 +73,10 @@ public class MiaLogEventManager {
         Bundle params = new Bundle();
         params.putString(FirebaseAnalytics.Param.AD_PLATFORM, "Max");
         params.putString(FirebaseAnalytics.Param.AD_SOURCE, impressionData.getNetworkName());
-        params.putString(FirebaseAnalytics.Param.AD_FORMAT, impressionData.getFormat().getLabel());
         params.putString(FirebaseAnalytics.Param.AD_UNIT_NAME, impressionData.getAdUnitId());
         params.putDouble(FirebaseAnalytics.Param.VALUE, revenue);
         params.putString(FirebaseAnalytics.Param.CURRENCY, "USD"); // All Applovin revenue is sent in USD
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.AD_IMPRESSION, params);
+        mFirebaseAnalytics.logEvent("admob_max_ad_impression", params);
     }
 
     private static void logEventWithMaxAdsNew(Context context, MaxAd maxAd) {
@@ -83,7 +94,7 @@ public class MiaLogEventManager {
         params.putString(FirebaseAnalytics.Param.AD_UNIT_NAME, adUnitId);
         params.putDouble(FirebaseAnalytics.Param.VALUE, revenue);
         params.putString(FirebaseAnalytics.Param.CURRENCY, "USD");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.AD_IMPRESSION, params);
+        mFirebaseAnalytics.logEvent("admob_max_ad_impression", params);
     }
 
     private static void logEventWithAds(Context context, float revenue, int precision, String adUnitId, String network, int mediationProvider) {
@@ -108,16 +119,19 @@ public class MiaLogEventManager {
         logTotalRevenueAdIn7DaysIfNeed(context);
     }
 
-    private static void logPaidAdImpressionValue(Context context, double value, int precision, String adunitid, String network, int mediationProvider) {
+    private static void logPaidAdImpressionValue(Context context, double value, int precision, String adUnitId, String network, int mediationProvider) {
         Bundle params = new Bundle();
-        params.putDouble("value", value);
-        params.putString("currency", "USD");
+        params.putString(FirebaseAnalytics.Param.AD_PLATFORM, "Admob");
+        params.putDouble(FirebaseAnalytics.Param.VALUE, value);
+        params.putString(FirebaseAnalytics.Param.CURRENCY, "USD");
         params.putInt("precision", precision);
-        params.putString("adunitid", adunitid);
-        params.putString("network", network);
+        params.putString(FirebaseAnalytics.Param.AD_UNIT_NAME, adUnitId);
+        params.putString(FirebaseAnalytics.Param.AD_SOURCE, network);
 
+        FirebaseAnalyticsUtil.logEventWithAds(context, "admob_max_ad_impression", params);
 
         MiaAdjust.logPaidAdImpressionValue(value, "USD");
+
         FirebaseAnalyticsUtil.logPaidAdImpressionValue(context, params, mediationProvider);
 
         FacebookEventUtils.logPaidAdImpressionValue(context, params, mediationProvider);
