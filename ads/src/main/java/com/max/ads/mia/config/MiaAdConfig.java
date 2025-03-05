@@ -125,11 +125,11 @@ public class MiaAdConfig {
         return enableAdResumeMax;
     }
 
-    public void setEnableAdResumeAdmob(Boolean isEnable){
+    public void setEnableAdResumeAdmob(Boolean isEnable) {
         this.enableAdResumeAdmob = isEnable;
     }
 
-    public void setEnableAdResumeMax(Boolean isEnable){
+    public void setEnableAdResumeMax(Boolean isEnable) {
         this.enableAdResumeMax = isEnable;
     }
 

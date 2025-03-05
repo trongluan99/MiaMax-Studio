@@ -15,13 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.max.ads.mia.R;
-import com.max.ads.mia.admob.AppOpenManager;
-import com.max.ads.mia.billing.AppPurchase;
-import com.max.ads.mia.dialog.PrepareLoadingAdsDialog;
-import com.max.ads.mia.event.MiaLogEventManager;
-import com.max.ads.mia.funtion.AdType;
-import com.max.ads.mia.util.SharePreferenceUtils;
+import com.applovin.mediation.MaxAd;
 import com.applovin.mediation.MaxAdListener;
 import com.applovin.mediation.MaxAdViewAdListener;
 import com.applovin.mediation.MaxError;
@@ -36,14 +30,20 @@ import com.applovin.mediation.nativeAds.MaxNativeAdView;
 import com.applovin.mediation.nativeAds.MaxNativeAdViewBinder;
 import com.applovin.sdk.AppLovinSdk;
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.max.ads.mia.R;
+import com.max.ads.mia.admob.AppOpenManager;
+import com.max.ads.mia.billing.AppPurchase;
+import com.max.ads.mia.dialog.PrepareLoadingAdsDialog;
+import com.max.ads.mia.event.MiaLogEventManager;
+import com.max.ads.mia.funtion.AdType;
+import com.max.ads.mia.util.SharePreferenceUtils;
 
 import java.util.Calendar;
 
-public class MaxAd {
+public class MaxAds {
     private static final String TAG = "MaxAd";
-    private static MaxAd instance;
+    private static MaxAds instance;
     private int currentClicked = 0;
-    private String nativeId;
     private int numShowAds = 3;
 
     private int maxClickAds = 100;
@@ -62,13 +62,19 @@ public class MaxAd {
     private String tokenAdjust;
 
     private boolean disableAdResumeWhenClickAds = false;
+    private boolean openActivityAfterShowInterAds = false;
 
-    public static MaxAd getInstance() {
+    public static MaxAds getInstance() {
         if (instance == null) {
-            instance = new MaxAd();
+            instance = new MaxAds();
             instance.isShowLoadingSplash = false;
         }
         return instance;
+    }
+
+
+    public void setOpenActivityAfterShowInterAds(boolean openActivityAfterShowInterAds) {
+        this.openActivityAfterShowInterAds = openActivityAfterShowInterAds;
     }
 
     public void init(Context context, MaxAdCallback adCallback, String tokenAdjust) {
@@ -122,7 +128,7 @@ public class MaxAd {
         this.disableAdResumeWhenClickAds = disableAdResumeWhenClickAds;
     }
 
-    public void loadSplashInterstitialAds(final Context context, String id, long timeOut, long timeDelay, MaxAdCallback adListener) {
+    public void loadSplashInterstitialAds(final AppCompatActivity context, String id, long timeOut, long timeDelay, MaxAdCallback adListener) {
         isTimeDelay = false;
         isTimeout = false;
         Log.i(TAG, "loadSplashInterstitialAds  start time loading:" + Calendar.getInstance().getTimeInMillis() + " ShowLoadingSplash:" + isShowLoadingSplash);
@@ -139,7 +145,7 @@ public class MaxAd {
             //check delay show ad splash
             if (interstitialSplash != null && interstitialSplash.isReady()) {
                 Log.i(TAG, "loadSplashInterstitialAds:show ad on delay ");
-                onShowSplash((Activity) context, adListener);
+                onShowSplash(context, adListener);
                 return;
             }
             Log.i(TAG, "loadSplashInterstitialAds: delay validate");
@@ -153,7 +159,7 @@ public class MaxAd {
                 isTimeout = true;
                 if (interstitialSplash != null && interstitialSplash.isReady()) {
                     Log.i(TAG, "loadSplashInterstitialAds:show ad on timeout ");
-                    onShowSplash((Activity) context, adListener);
+                    onShowSplash(context, adListener);
                     return;
                 }
                 if (adListener != null) {
@@ -168,28 +174,28 @@ public class MaxAd {
 
         interstitialSplash.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+            public void onAdLoaded(MaxAd ad) {
                 Log.e(TAG, "loadSplashInterstitialAds end time loading success: " + Calendar.getInstance().getTimeInMillis() + " time limit:" + isTimeout);
                 if (isTimeout) return;
                 if (isTimeDelay) {
-                    onShowSplash((Activity) context, adListener);
+                    onShowSplash(context, adListener);
                     Log.i(TAG, "loadSplashInterstitialAds: show ad on loaded ");
                 }
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
             }
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+            public void onAdHidden(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 if (disableAdResumeWhenClickAds)
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
@@ -209,13 +215,13 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
 
             }
         });
     }
 
-    public void loadSplashInterstitialAds(final Context context, String id, long timeOut, long timeDelay, boolean showSplashIfReady, MaxAdCallback adListener) {
+    public void loadSplashInterstitialAds(final AppCompatActivity context, String id, long timeOut, long timeDelay, boolean showSplashIfReady, MaxAdCallback adListener) {
         isTimeDelay = false;
         isTimeout = false;
         Log.i(TAG, "loadSplashInterstitialAds  start time loading:" + Calendar.getInstance().getTimeInMillis() + " ShowLoadingSplash:" + isShowLoadingSplash);
@@ -232,7 +238,7 @@ public class MaxAd {
             //check delay show ad splash
             if (interstitialSplash != null && interstitialSplash.isReady()) {
                 Log.i(TAG, "loadSplashInterstitialAds:show ad on delay ");
-                if (showSplashIfReady) onShowSplash((Activity) context, adListener);
+                if (showSplashIfReady) onShowSplash(context, adListener);
                 else adListener.onAdSplashReady();
                 return;
             }
@@ -247,7 +253,7 @@ public class MaxAd {
                 isTimeout = true;
                 if (interstitialSplash != null && interstitialSplash.isReady()) {
                     Log.i(TAG, "loadSplashInterstitialAds:show ad on timeout ");
-                    if (showSplashIfReady) onShowSplash((Activity) context, adListener);
+                    if (showSplashIfReady) onShowSplash(context, adListener);
                     else adListener.onAdSplashReady();
 
                     return;
@@ -264,29 +270,29 @@ public class MaxAd {
 
         interstitialSplash.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+            public void onAdLoaded(MaxAd ad) {
                 Log.e(TAG, "loadSplashInterstitialAds end time loading success: " + Calendar.getInstance().getTimeInMillis() + " time limit:" + isTimeout);
                 if (isTimeout) return;
                 if (isTimeDelay) {
-                    if (showSplashIfReady) onShowSplash((Activity) context, adListener);
+                    if (showSplashIfReady) onShowSplash((AppCompatActivity) context, adListener);
                     else adListener.onAdSplashReady();
                     Log.i(TAG, "loadSplashInterstitialAds: show ad on loaded ");
                 }
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
             }
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+            public void onAdHidden(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (adListener != null) {
                     adListener.onAdClicked();
@@ -309,13 +315,13 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
 
             }
         });
     }
 
-    public void onShowSplash(Activity activity, MaxAdCallback adListener) {
+    public void onShowSplash(AppCompatActivity activity, MaxAdCallback adListener) {
         isShowLoadingSplash = true;
         Log.d(TAG, "onShowSplash: ");
         if (handlerTimeout != null && rdTimeout != null) {
@@ -337,12 +343,12 @@ public class MaxAd {
         });
         interstitialSplash.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+            public void onAdLoaded(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
                 Log.d(TAG, "onAdDisplayed: ");
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
@@ -352,12 +358,15 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
-                Log.d(TAG, "onAdHidden: " + ((AppCompatActivity) activity).getLifecycle().getCurrentState());
+            public void onAdHidden(MaxAd ad) {
+                Log.d(TAG, "onAdHidden: " + activity.getLifecycle().getCurrentState());
                 AppOpenMax.getInstance().setInterstitialShowing(false);
                 AppOpenManager.getInstance().setInterstitialShowing(false);
                 isShowLoadingSplash = false;
-                if (adListener != null && ((AppCompatActivity) activity).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                if (adListener != null && activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                    if (!openActivityAfterShowInterAds) {
+                        adListener.onNextAction();
+                    }
                     adListener.onAdClosed();
                     interstitialSplash = null;
                     if (dialog != null) {
@@ -367,7 +376,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, interstitialSplash.getAdUnitId());
                 if (adListener != null) {
                     adListener.onAdClicked();
@@ -382,7 +391,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
                 Log.d(TAG, "onAdDisplayFailed: " + error.getMessage());
                 interstitialSplash = null;
                 isShowLoadingSplash = false;
@@ -405,12 +414,36 @@ public class MaxAd {
                 }
             } catch (Exception e) {
                 dialog = null;
-                e.printStackTrace();
+                assert adListener != null;
                 adListener.onAdClosed();
                 return;
             }
             new Handler().postDelayed(() -> {
-                if (activity != null && !activity.isDestroyed()) interstitialSplash.showAd();
+                if (ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                    if (openActivityAfterShowInterAds && adListener != null) {
+                        adListener.onNextAction();
+                        new Handler().postDelayed(() -> {
+                            if (dialog != null && dialog.isShowing() && !activity.isDestroyed())
+                                dialog.dismiss();
+                        }, 1500);
+                    }
+                    if (interstitialSplash != null) {
+                        interstitialSplash.showAd(activity);
+                        isShowLoadingSplash = false;
+                    } else if (adListener != null) {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                        adListener.onNextAction();
+                        isShowLoadingSplash = false;
+                    }
+                } else {
+                    if (dialog != null && dialog.isShowing() && !activity.isDestroyed())
+                        dialog.dismiss();
+                    isShowLoadingSplash = false;
+                    assert adListener != null;
+                    adListener.onAdClosed();
+                }
             }, 800);
         } else {
             Log.e(TAG, "onShowSplash fail ");
@@ -418,17 +451,14 @@ public class MaxAd {
         }
     }
 
-    public void onCheckShowSplashWhenFail(Activity activity, MaxAdCallback callback, int timeDelay) {
-        if (MaxAd.getInstance().getInterstitialSplash() != null && !MaxAd.getInstance().isShowLoadingSplash) {
-            new Handler(activity.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (MaxAd.getInstance().getInterstitialSplash().isReady()) {
-                        Log.i(TAG, "show ad splash when show fail in background");
-                        MaxAd.getInstance().onShowSplash(activity, callback);
-                    } else {
-                        callback.onAdClosed();
-                    }
+    public void onCheckShowSplashWhenFail(AppCompatActivity activity, MaxAdCallback callback, int timeDelay) {
+        if (MaxAds.getInstance().getInterstitialSplash() != null && !MaxAds.getInstance().isShowLoadingSplash) {
+            new Handler(activity.getMainLooper()).postDelayed(() -> {
+                if (MaxAds.getInstance().getInterstitialSplash().isReady()) {
+                    Log.i(TAG, "show ad splash when show fail in background");
+                    MaxAds.getInstance().onShowSplash(activity, callback);
+                } else {
+                    callback.onAdClosed();
                 }
             }, timeDelay);
         }
@@ -439,25 +469,25 @@ public class MaxAd {
             Log.d(TAG, "getInterstitialAds: ignore");
             return null;
         }
-        final MaxInterstitialAd interstitialAd = new MaxInterstitialAd(id, (Activity) context);
+        final MaxInterstitialAd interstitialAd = new MaxInterstitialAd(id, context);
         interstitialAd.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+            public void onAdLoaded(MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: getInterstitialAds");
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+            public void onAdHidden(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (disableAdResumeWhenClickAds)
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
@@ -469,7 +499,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
 
             }
         });
@@ -483,14 +513,15 @@ public class MaxAd {
         }
     }
 
-    public void forceShowInterstitial(Context context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, boolean shouldReload) {
+    public void forceShowInterstitial(AppCompatActivity context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, boolean shouldReload) {
         currentClicked = numShowAds;
         showInterstitialAdByTimes(context, interstitialAd, callback, shouldReload);
     }
 
-    public void showInterstitialAdByTimes(final Context context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, final boolean shouldReloadAds) {
+    public void showInterstitialAdByTimes(final AppCompatActivity context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, final boolean shouldReloadAds) {
         MaxHelper.setupMaxData(context);
         if (AppPurchase.getInstance().isPurchased(context)) {
+            Log.d("DEV_ADS", "showInterstitialAdByTimes: 1");
             callback.onAdClosed();
             return;
         }
@@ -498,6 +529,7 @@ public class MaxAd {
             if (callback != null) {
                 callback.onAdClosed();
             }
+            Log.d("DEV_ADS", "showInterstitialAdByTimes: 2");
             return;
         }
 
@@ -509,24 +541,28 @@ public class MaxAd {
         });
         interstitialAd.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
-
+            public void onAdLoaded(MaxAd ad) {
+                Log.d("DEV_ADS", "onAdLoaded: ");
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
                 SharePreferenceUtils.setLastImpressionInterstitialTime(context);
+                Log.d("DEV_ADS", "onAdDisplayed: ");
             }
 
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+            public void onAdHidden(MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(false);
                 AppOpenManager.getInstance().setInterstitialShowing(false);
-                if (callback != null && ((AppCompatActivity) context).getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                if (callback != null && context.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                     callback.onAdClosed();
+                    if (!openActivityAfterShowInterAds) {
+                        callback.onNextAction();
+                    }
                     if (shouldReloadAds) {
                         requestInterstitialAds(interstitialAd);
                     }
@@ -534,27 +570,31 @@ public class MaxAd {
                         dialog.dismiss();
                     }
                 }
-                Log.d(TAG, "onAdHidden: " + ((AppCompatActivity) context).getLifecycle().getCurrentState());
+                Log.d(TAG, "onAdHidden: " + context.getLifecycle().getCurrentState());
+                Log.d("DEV_ADS", "onAdHidden: ");
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (callback != null) {
                     callback.onAdClicked();
                 }
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                }
+                Log.d("DEV_ADS", "onAdClicked: ");
             }
 
             @Override
             public void onAdLoadFailed(String adUnitId, MaxError error) {
-
+                Log.d("DEV_ADS", "onAdLoadFailed: ");
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
                 Log.e(TAG, "onAdDisplayFailed: " + error.getMessage());
+                Log.d("DEV_ADS", "onAdDisplayFailed: ");
                 if (callback != null) {
                     callback.onAdClosed();
                     if (dialog != null) {
@@ -565,13 +605,16 @@ public class MaxAd {
         });
         if (MaxHelper.getNumClickAdsPerDay(context, interstitialAd.getAdUnitId()) < maxClickAds) {
             showInterstitialAd(context, interstitialAd, callback);
+            Log.d("DEV_ADS", "MaxHelper.getNumClickAdsPerDay: ");
             return;
         }
         if (callback != null) {
+            Log.d("DEV_ADS", "showInterstitialAdByTimes: 3");
             callback.onAdClosed();
         }
     }
-    private void showInterstitialAd(Context context, MaxInterstitialAd interstitialAd, MaxAdCallback callback) {
+
+    private void showInterstitialAd(AppCompatActivity context, MaxInterstitialAd interstitialAd, MaxAdCallback callback) {
         currentClicked++;
         if (currentClicked >= numShowAds && interstitialAd != null) {
             if (ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
@@ -588,9 +631,24 @@ public class MaxAd {
                     }
                 } catch (Exception e) {
                     dialog = null;
-                    e.printStackTrace();
                 }
-                new Handler().postDelayed(interstitialAd::showAd, 800);
+
+                new Handler().postDelayed(() -> {
+                    if (context.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                        if (openActivityAfterShowInterAds && callback != null) {
+                            callback.onNextAction();
+                            new Handler().postDelayed(() -> {
+                                if (dialog != null && dialog.isShowing() && !context.isDestroyed())
+                                    dialog.dismiss();
+                            }, 1500);
+                        }
+                        interstitialAd.showAd(context);
+                    } else {
+                        if (dialog != null && dialog.isShowing() && !context.isDestroyed())
+                            dialog.dismiss();
+                        callback.onAdClosed();
+                    }
+                }, 800);
             }
             currentClicked = 0;
         } else if (callback != null) {
@@ -640,23 +698,22 @@ public class MaxAd {
             }
         });
         int width = ViewGroup.LayoutParams.MATCH_PARENT;
-        // Banner height on phones and tablets is 50 and 90, respectively
         int heightPx = mActivity.getResources().getDimensionPixelSize(R.dimen.banner_height);
         adView.setLayoutParams(new FrameLayout.LayoutParams(width, heightPx));
         adContainer.addView(adView);
         adView.setListener(new MaxAdViewAdListener() {
             @Override
-            public void onAdExpanded(com.applovin.mediation.MaxAd ad) {
+            public void onAdExpanded(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdCollapsed(com.applovin.mediation.MaxAd ad) {
+            public void onAdCollapsed(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+            public void onAdLoaded(MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: banner");
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -664,17 +721,17 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+            public void onAdHidden(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (disableAdResumeWhenClickAds)
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
@@ -689,7 +746,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
 
             }
         });
@@ -717,17 +774,17 @@ public class MaxAd {
         adContainer.addView(adView);
         adView.setListener(new MaxAdViewAdListener() {
             @Override
-            public void onAdExpanded(com.applovin.mediation.MaxAd ad) {
+            public void onAdExpanded(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdCollapsed(com.applovin.mediation.MaxAd ad) {
+            public void onAdCollapsed(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+            public void onAdLoaded(MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: banner");
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -735,19 +792,19 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
                 if (adCallback != null) {
                     adCallback.onAdImpression();
                 }
             }
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+            public void onAdHidden(MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (adCallback != null) {
                     adCallback.onAdClicked();
@@ -765,7 +822,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
 
             }
         });
@@ -821,7 +878,7 @@ public class MaxAd {
         });
         nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
             @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final com.applovin.mediation.MaxAd ad) {
+            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
                 Log.d(TAG, "onNativeAdLoaded ");
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -838,7 +895,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onNativeAdClicked(final com.applovin.mediation.MaxAd ad) {
+            public void onNativeAdClicked(final MaxAd ad) {
                 Log.e(TAG, "`onNativeAdClicked`: ");
                 containerShimmer.setVisibility(View.VISIBLE);
                 containerShimmer.startShimmer();
@@ -878,7 +935,7 @@ public class MaxAd {
         });
         nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
             @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final com.applovin.mediation.MaxAd ad) {
+            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
                 Log.d(TAG, "onNativeAdLoaded ");
                 populateNativeAdView(nativeAdView, nativeAdLayout, containerShimmer);
                 callback.onUnifiedNativeAdLoaded(nativeAdView);
@@ -895,7 +952,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onNativeAdClicked(final com.applovin.mediation.MaxAd ad) {
+            public void onNativeAdClicked(final MaxAd ad) {
                 Log.e(TAG, "`onNativeAdClicked`: ");
                 containerShimmer.setVisibility(View.VISIBLE);
                 containerShimmer.startShimmer();
@@ -945,7 +1002,7 @@ public class MaxAd {
         });
         nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
             @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final com.applovin.mediation.MaxAd ad) {
+            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
                 Log.d(TAG, "onNativeAdLoaded ");
                 callback.onUnifiedNativeAdLoaded(nativeAdView);
             }
@@ -957,7 +1014,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onNativeAdClicked(final com.applovin.mediation.MaxAd ad) {
+            public void onNativeAdClicked(final MaxAd ad) {
                 Log.e(TAG, "onNativeAdClicked: ");
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 callback.onAdClicked();
@@ -972,40 +1029,40 @@ public class MaxAd {
         MaxRewardedAd rewardedAd = MaxRewardedAd.getInstance(id, activity);
         rewardedAd.setListener(new MaxRewardedAdListener() {
             @Override
-            public void onRewardedVideoStarted(com.applovin.mediation.MaxAd ad) {
+            public void onRewardedVideoStarted(MaxAd ad) {
                 Log.d(TAG, "onRewardedVideoStarted: ");
             }
 
             @Override
-            public void onRewardedVideoCompleted(com.applovin.mediation.MaxAd ad) {
+            public void onRewardedVideoCompleted(MaxAd ad) {
                 Log.d(TAG, "onRewardedVideoCompleted: ");
             }
 
             @Override
-            public void onUserRewarded(com.applovin.mediation.MaxAd ad, MaxReward reward) {
+            public void onUserRewarded(MaxAd ad, MaxReward reward) {
                 callback.onUserRewarded(reward);
                 Log.d(TAG, "onUserRewarded: ");
             }
 
             @Override
-            public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+            public void onAdLoaded(MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: ");
                 callback.onAdLoaded();
             }
 
             @Override
-            public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+            public void onAdDisplayed(MaxAd ad) {
                 Log.d(TAG, "onAdDisplayed: ");
             }
 
             @Override
-            public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+            public void onAdHidden(MaxAd ad) {
                 callback.onAdClosed();
                 Log.d(TAG, "onAdHidden: ");
             }
 
             @Override
-            public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+            public void onAdClicked(MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 callback.onAdClicked();
                 if (disableAdResumeWhenClickAds)
@@ -1019,7 +1076,7 @@ public class MaxAd {
             }
 
             @Override
-            public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
                 Log.d(TAG, "onAdDisplayFailed: " + error.getMessage());
                 callback.onAdFailedToShow(error);
             }
@@ -1044,40 +1101,40 @@ public class MaxAd {
             });
             maxRewardedAd.setListener(new MaxRewardedAdListener() {
                 @Override
-                public void onRewardedVideoStarted(com.applovin.mediation.MaxAd ad) {
+                public void onRewardedVideoStarted(MaxAd ad) {
                     Log.d(TAG, "onRewardedVideoStarted: ");
                 }
 
                 @Override
-                public void onRewardedVideoCompleted(com.applovin.mediation.MaxAd ad) {
+                public void onRewardedVideoCompleted(MaxAd ad) {
                     Log.d(TAG, "onRewardedVideoCompleted: ");
                 }
 
                 @Override
-                public void onUserRewarded(com.applovin.mediation.MaxAd ad, MaxReward reward) {
+                public void onUserRewarded(MaxAd ad, MaxReward reward) {
                     callback.onUserRewarded(reward);
                     Log.d(TAG, "onUserRewarded: ");
                 }
 
                 @Override
-                public void onAdLoaded(com.applovin.mediation.MaxAd ad) {
+                public void onAdLoaded(MaxAd ad) {
                     Log.d(TAG, "onAdLoaded: ");
                     callback.onAdLoaded();
                 }
 
                 @Override
-                public void onAdDisplayed(com.applovin.mediation.MaxAd ad) {
+                public void onAdDisplayed(MaxAd ad) {
                     Log.d(TAG, "onAdDisplayed: ");
                 }
 
                 @Override
-                public void onAdHidden(com.applovin.mediation.MaxAd ad) {
+                public void onAdHidden(MaxAd ad) {
                     callback.onAdClosed();
                     Log.d(TAG, "onAdHidden: ");
                 }
 
                 @Override
-                public void onAdClicked(com.applovin.mediation.MaxAd ad) {
+                public void onAdClicked(MaxAd ad) {
                     MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                     callback.onAdClicked();
                     if (disableAdResumeWhenClickAds)
@@ -1091,7 +1148,7 @@ public class MaxAd {
                 }
 
                 @Override
-                public void onAdDisplayFailed(com.applovin.mediation.MaxAd ad, MaxError error) {
+                public void onAdDisplayFailed(MaxAd ad, MaxError error) {
                     Log.d(TAG, "onAdDisplayFailed: " + error.getMessage());
                     callback.onAdFailedToShow(error);
                 }

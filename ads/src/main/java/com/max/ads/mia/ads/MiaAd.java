@@ -37,7 +37,7 @@ import com.max.ads.mia.ads.wrapper.ApNativeAd;
 import com.max.ads.mia.config.MiaAdConfig;
 import com.max.ads.mia.event.MiaAdjust;
 import com.max.ads.mia.max.AppOpenMax;
-import com.max.ads.mia.max.MaxAd;
+import com.max.ads.mia.max.MaxAds;
 import com.max.ads.mia.max.MaxAdCallback;
 import com.max.ads.mia.util.AppUtil;
 import com.max.ads.mia.util.SharePreferenceUtils;
@@ -77,11 +77,11 @@ public class MiaAd {
     }
 
     public void setCountClickToShowAds(int countClickToShowAds) {
-        MaxAd.getInstance().setNumShowAds(countClickToShowAds);
+        MaxAds.getInstance().setNumShowAds(countClickToShowAds);
     }
 
     public void setCountClickToShowAds(int countClickToShowAds, int currentClicked) {
-        MaxAd.getInstance().setNumToShowAds(countClickToShowAds, currentClicked);
+        MaxAds.getInstance().setNumToShowAds(countClickToShowAds, currentClicked);
     }
 
     public void init(Application context, MiaAdConfig adConfig, Boolean enableDebugMediation) {
@@ -113,7 +113,7 @@ public class MiaAd {
     }
 
     private void initMax(Application context, MiaAdConfig adConfig, Boolean enableDebugMediation) {
-        MaxAd.getInstance().init(context, new MaxAdCallback() {
+        MaxAds.getInstance().init(context, new MaxAdCallback() {
             @Override
             public void initMaxSuccess() {
                 super.initMaxSuccess();
@@ -228,32 +228,32 @@ public class MiaAd {
      */
 
     public void loadBannerMax(Activity mActivity, String id) {
-        MaxAd.getInstance().loadBanner(mActivity, id);
+        MaxAds.getInstance().loadBanner(mActivity, id);
     }
 
     public void loadBannerMax(Activity mActivity, String id, MaxAdCallback adCallback) {
-        MaxAd.getInstance().loadBanner(mActivity, id, adCallback);
+        MaxAds.getInstance().loadBanner(mActivity, id, adCallback);
     }
 
     public void loadBannerFragmentMax(Activity mActivity, String id, View rootView) {
-        MaxAd.getInstance().loadBannerFragment(mActivity, id, rootView);
+        MaxAds.getInstance().loadBannerFragment(mActivity, id, rootView);
     }
 
     public void loadBannerFragmentMax(Activity mActivity, String id, View rootView, MaxAdCallback adCallback) {
-        MaxAd.getInstance().loadBannerFragment(mActivity, id, rootView, adCallback);
+        MaxAds.getInstance().loadBannerFragment(mActivity, id, rootView, adCallback);
     }
 
-    public void loadSplashInterstitialAdsMax(Context context, String id, long timeOut, long timeDelay, MaxAdCallback adListener) {
-        MaxAd.getInstance().loadSplashInterstitialAds(context, id, timeOut, timeDelay, true, adListener);
+    public void loadSplashInterstitialAdsMax(AppCompatActivity context, String id, long timeOut, long timeDelay, MaxAdCallback adListener) {
+        MaxAds.getInstance().loadSplashInterstitialAds(context, id, timeOut, timeDelay, true, adListener);
     }
 
     public void onCheckShowSplashWhenFailMax(AppCompatActivity activity, MaxAdCallback callback, int timeDelay) {
-        MaxAd.getInstance().onCheckShowSplashWhenFail(activity, callback, timeDelay);
+        MaxAds.getInstance().onCheckShowSplashWhenFail(activity, callback, timeDelay);
     }
 
     public ApInterstitialAd getInterstitialAdsMax(Context context, String id, MaxAdCallback adListener) {
         ApInterstitialAd apInterstitialAd = new ApInterstitialAd();
-        MaxInterstitialAd maxInterstitialAd = MaxAd.getInstance().getInterstitialAds(context, id);
+        MaxInterstitialAd maxInterstitialAd = MaxAds.getInstance().getInterstitialAds(context, id);
         maxInterstitialAd.setListener(new MaxAdListener() {
             @Override
             public void onAdLoaded(@NonNull com.applovin.mediation.MaxAd maxAd) {
@@ -290,7 +290,7 @@ public class MiaAd {
         return apInterstitialAd;
     }
 
-    public void forceShowInterstitialMax(@NonNull Context context, ApInterstitialAd mInterstitialAd,
+    public void forceShowInterstitialMax(@NonNull AppCompatActivity context, ApInterstitialAd mInterstitialAd,
                                          @NonNull final MaxAdCallback callback, boolean shouldReloadAds) {
         if (System.currentTimeMillis() - SharePreferenceUtils.getLastImpressionInterstitialTime(context)
                 < MiaAd.getInstance().adConfig.getIntervalInterstitialAd() * 1000L
@@ -302,7 +302,7 @@ public class MiaAd {
             callback.onNextAction();
             return;
         }
-        MaxAd.getInstance().showInterstitialAdByTimes(context, mInterstitialAd.getMaxInterstitialAd(), new MaxAdCallback() {
+        MaxAds.getInstance().showInterstitialAdByTimes(context, mInterstitialAd.getMaxInterstitialAd(), new MaxAdCallback() {
             @Override
             public void onAdClosed() {
                 super.onAdClosed();
@@ -343,7 +343,7 @@ public class MiaAd {
 
     public void loadNativeAdResultCallbackMax(final Activity activity, String id,
                                               int layoutCustomNative, MaxAdCallback callback) {
-        MaxAd.getInstance().loadNativeAd(activity, id, layoutCustomNative, new MaxAdCallback() {
+        MaxAds.getInstance().loadNativeAd(activity, id, layoutCustomNative, new MaxAdCallback() {
             @Override
             public void onUnifiedNativeAdLoaded(MaxNativeAdView unifiedNativeAd) {
                 super.onUnifiedNativeAdLoaded(unifiedNativeAd);
@@ -367,7 +367,7 @@ public class MiaAd {
     public void loadNativeAdMax(final Activity activity, String id,
                                 int layoutCustomNative, FrameLayout adPlaceHolder, ShimmerFrameLayout
                                         containerShimmerLoading, MaxAdCallback callback) {
-        MaxAd.getInstance().loadNativeAd(activity, id, layoutCustomNative, new MaxAdCallback() {
+        MaxAds.getInstance().loadNativeAd(activity, id, layoutCustomNative, new MaxAdCallback() {
             @Override
             public void onUnifiedNativeAdLoaded(MaxNativeAdView unifiedNativeAd) {
                 super.onUnifiedNativeAdLoaded(unifiedNativeAd);
@@ -399,11 +399,11 @@ public class MiaAd {
     }
 
     public MaxRewardedAd initRewardAdsMax(AppCompatActivity activity, String id, MaxAdCallback callback) {
-        return MaxAd.getInstance().getRewardAd(activity, id, callback);
+        return MaxAds.getInstance().getRewardAd(activity, id, callback);
     }
 
     public void showRewardAdsMax(Activity context, MaxRewardedAd rewardedAd, MaxAdCallback adCallback) {
-        MaxAd.getInstance().showRewardAd(context, rewardedAd, adCallback);
+        MaxAds.getInstance().showRewardAd(context, rewardedAd, adCallback);
     }
 
 
@@ -684,7 +684,7 @@ public class MiaAd {
         Admob.getInstance().showRewardAds(context, adCallback);
     }
 
-    public void showRewardAds(Activity context, RewardedAd rewardedAd, AdmobAdCallback adCallback) {
+    public void showRewardAdsAdmob(Activity context, RewardedAd rewardedAd, AdmobAdCallback adCallback) {
         Admob.getInstance().showRewardAds(context, rewardedAd, adCallback);
     }
 

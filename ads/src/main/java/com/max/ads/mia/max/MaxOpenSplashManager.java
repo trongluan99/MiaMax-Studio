@@ -9,10 +9,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.applovin.mediation.MaxAd;
 import com.applovin.mediation.MaxAdListener;
-import com.applovin.mediation.MaxAdRevenueListener;
 import com.applovin.mediation.MaxError;
 import com.applovin.mediation.ads.MaxAppOpenAd;
 import com.applovin.sdk.AppLovinSdk;
+import com.max.ads.mia.admob.AppOpenManager;
+import com.max.ads.mia.config.MiaAdConfig;
 import com.max.ads.mia.event.MiaLogEventManager;
 import com.max.ads.mia.funtion.AdType;
 
@@ -122,6 +123,8 @@ public class MaxOpenSplashManager {
                     if (adCallback != null) {
                         adCallback.onAdDisplayed();
                     }
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
+                    AppOpenManager.getInstance().setInterstitialShowing(true);
                 }
 
                 @Override
@@ -129,6 +132,8 @@ public class MaxOpenSplashManager {
                     if (adCallback != null) {
                         adCallback.onNextAction();
                     }
+                    AppOpenMax.getInstance().setInterstitialShowing(false);
+                    AppOpenManager.getInstance().setInterstitialShowing(false);
                 }
 
                 @Override
@@ -152,10 +157,10 @@ public class MaxOpenSplashManager {
                     }
                 }
             });
-            openAdSplash.setRevenueListener(new MaxAdRevenueListener() {
-                @Override
-                public void onAdRevenuePaid(MaxAd maxAd) {
-                    MiaLogEventManager.logPaidAdImpression(context, maxAd, AdType.APP_OPEN);
+            openAdSplash.setRevenueListener(maxAd -> {
+                MiaLogEventManager.logPaidAdImpression(context, maxAd, AdType.APP_OPEN);
+                if (MiaAdConfig.ADJUST_TOKEN_TIKTOK != null) {
+                    MiaLogEventManager.logPaidAdjustWithTokenMax(maxAd, maxAd.getAdUnitId(), MiaAdConfig.ADJUST_TOKEN_TIKTOK);
                 }
             });
             openAdSplash.showAd();
