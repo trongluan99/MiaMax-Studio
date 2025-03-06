@@ -293,7 +293,7 @@ public class MiaAd {
             callback.onNextAction();
             return;
         }
-        MaxAds.getInstance().showInterstitialAdByTimes(context, mInterstitialAd.getMaxInterstitialAd(), new MaxAdCallback() {
+        MaxAds.getInstance().forceShowInterstitial(context, mInterstitialAd.getMaxInterstitialAd(), new MaxAdCallback() {
             @Override
             public void onAdClosed() {
                 super.onAdClosed();

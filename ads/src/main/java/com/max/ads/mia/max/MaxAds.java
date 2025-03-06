@@ -512,12 +512,12 @@ public class MaxAds {
         }
     }
 
-    public void forceShowInterstitial(AppCompatActivity context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, boolean shouldReload) {
+    public void forceShowInterstitial(Context context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, boolean shouldReload) {
         currentClicked = numShowAds;
         showInterstitialAdByTimes(context, interstitialAd, callback, shouldReload);
     }
 
-    public void showInterstitialAdByTimes(final Activity context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, final boolean shouldReloadAds) {
+    public void showInterstitialAdByTimes(final Context context, MaxInterstitialAd interstitialAd, final MaxAdCallback callback, final boolean shouldReloadAds) {
         MaxHelper.setupMaxData(context);
         if (AppPurchase.getInstance().isPurchased(context)) {
             Log.d("DEV_ADS", "showInterstitialAdByTimes: 1");
@@ -603,7 +603,7 @@ public class MaxAds {
             }
         });
         if (MaxHelper.getNumClickAdsPerDay(context, interstitialAd.getAdUnitId()) < maxClickAds) {
-            showInterstitialAd(context, interstitialAd, callback);
+            showInterstitialAd((Activity) context, interstitialAd, callback);
             Log.d("DEV_ADS", "MaxHelper.getNumClickAdsPerDay: ");
             return;
         }
