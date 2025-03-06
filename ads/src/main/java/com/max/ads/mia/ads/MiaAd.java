@@ -17,31 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.adjust.sdk.Adjust;
-import com.adjust.sdk.AdjustAttribution;
 import com.adjust.sdk.AdjustConfig;
-import com.adjust.sdk.AdjustEventFailure;
-import com.adjust.sdk.AdjustEventSuccess;
-import com.adjust.sdk.AdjustSessionFailure;
-import com.adjust.sdk.AdjustSessionSuccess;
 import com.adjust.sdk.LogLevel;
-import com.adjust.sdk.OnAttributionChangedListener;
-import com.adjust.sdk.OnEventTrackingFailedListener;
-import com.adjust.sdk.OnEventTrackingSucceededListener;
-import com.adjust.sdk.OnSessionTrackingFailedListener;
-import com.adjust.sdk.OnSessionTrackingSucceededListener;
-import com.max.ads.mia.admob.Admob;
-import com.max.ads.mia.admob.AdmobAdCallback;
-import com.max.ads.mia.admob.AppOpenManager;
-import com.max.ads.mia.ads.wrapper.ApInterstitialAd;
-import com.max.ads.mia.ads.wrapper.ApInterstitialPriorityAd;
-import com.max.ads.mia.ads.wrapper.ApNativeAd;
-import com.max.ads.mia.config.MiaAdConfig;
-import com.max.ads.mia.event.MiaAdjust;
-import com.max.ads.mia.max.AppOpenMax;
-import com.max.ads.mia.max.MaxAds;
-import com.max.ads.mia.max.MaxAdCallback;
-import com.max.ads.mia.util.AppUtil;
-import com.max.ads.mia.util.SharePreferenceUtils;
 import com.applovin.mediation.MaxAdListener;
 import com.applovin.mediation.MaxError;
 import com.applovin.mediation.ads.MaxInterstitialAd;
@@ -57,6 +34,20 @@ import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdView;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
+import com.max.ads.mia.admob.Admob;
+import com.max.ads.mia.admob.AdmobAdCallback;
+import com.max.ads.mia.admob.AppOpenManager;
+import com.max.ads.mia.ads.wrapper.ApInterstitialAd;
+import com.max.ads.mia.ads.wrapper.ApInterstitialPriorityAd;
+import com.max.ads.mia.ads.wrapper.ApNativeAd;
+import com.max.ads.mia.billing.AppPurchase;
+import com.max.ads.mia.config.MiaAdConfig;
+import com.max.ads.mia.event.MiaAdjust;
+import com.max.ads.mia.max.AppOpenMax;
+import com.max.ads.mia.max.MaxAdCallback;
+import com.max.ads.mia.max.MaxAds;
+import com.max.ads.mia.util.AppUtil;
+import com.max.ads.mia.util.SharePreferenceUtils;
 
 public class MiaAd {
     public static final String TAG_ADJUST = "MiaAdjust";
@@ -230,6 +221,10 @@ public class MiaAd {
     }
 
     public void loadSplashInterstitialAdsMax(Activity context, String id, long timeOut, long timeDelay, MaxAdCallback adListener) {
+        if (!isNetworkConnected(context) || AppPurchase.getInstance().isPurchased()) {
+            adListener.onNextAction();
+            return;
+        }
         MaxAds.getInstance().loadSplashInterstitialAds(context, id, timeOut, timeDelay, true, adListener);
     }
 
@@ -278,7 +273,7 @@ public class MiaAd {
 
     public void forceShowInterstitialMax(@NonNull Activity context, ApInterstitialAd mInterstitialAd,
                                          @NonNull final MaxAdCallback callback, boolean shouldReloadAds) {
-        if(!isNetworkConnected(context)){
+        if (!isNetworkConnected(context)) {
             callback.onNextAction();
             return;
         }
@@ -389,7 +384,7 @@ public class MiaAd {
         adPlaceHolder.addView(apNativeAd.getNativeView());
     }
 
-    public MaxRewardedAd initRewardAdsMax(AppCompatActivity activity, String id, MaxAdCallback callback) {
+    public MaxRewardedAd initRewardAdsMax(Activity activity, String id, MaxAdCallback callback) {
         return MaxAds.getInstance().getRewardAd(activity, id, callback);
     }
 
@@ -480,7 +475,7 @@ public class MiaAd {
 
     public void forceShowInterstitialAdmob(@NonNull Context context, ApInterstitialAd mInterstitialAd,
                                            @NonNull final AdmobAdCallback callback, boolean shouldReloadAds) {
-        if(!isNetworkConnected(context)){
+        if (!isNetworkConnected(context)) {
             callback.onNextAction();
             return;
         }
@@ -1008,7 +1003,7 @@ public class MiaAd {
     }
 
     public void forceShowInterstitialPriorityAdmob(Context context, ApInterstitialPriorityAd apInterstitialPriorityAd, AdmobAdCallback adCallback, boolean isReloadAds) {
-        if(!isNetworkConnected(context)){
+        if (!isNetworkConnected(context)) {
             adCallback.onNextAction();
             return;
         }

@@ -306,6 +306,7 @@ public class MaxAds {
                 Log.e(TAG, "onAdLoadFailed: " + error.getMessage());
                 if (isTimeout) return;
                 if (adListener != null) {
+                    adListener.onNextAction();
                     if (handlerTimeout != null && rdTimeout != null) {
                         handlerTimeout.removeCallbacks(rdTimeout);
                     }
