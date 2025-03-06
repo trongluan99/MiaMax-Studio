@@ -405,11 +405,17 @@ public class MaxAds {
 
         if (ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
             try {
-                if (dialog != null && dialog.isShowing()) dialog.dismiss();
+                if (dialog != null && dialog.isShowing())
+                    dialog.dismiss();
                 dialog = new PrepareLoadingAdsDialog(activity);
-                if (activity != null && !activity.isDestroyed()) {
-                    dialog.setCancelable(false);
+                try {
                     dialog.show();
+                    AppOpenManager.getInstance().setInterstitialShowing(true);
+                    AppOpenMax.getInstance().setInterstitialShowing(true);
+                } catch (Exception e) {
+                    assert adListener != null;
+                    adListener.onNextAction();
+                    return;
                 }
             } catch (Exception e) {
                 dialog = null;
