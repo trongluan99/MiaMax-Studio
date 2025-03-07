@@ -657,12 +657,9 @@ public class Admob {
     }
 
     public void onCheckShowSplashWhenFail(AppCompatActivity activity, AdmobAdCallback callback, int timeDelay) {
-        new Handler(activity.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (interstitialSplashLoaded() && !isShowLoadingSplash()) {
-                    Admob.getInstance().onShowSplash(activity, callback);
-                }
+        new Handler(activity.getMainLooper()).postDelayed(() -> {
+            if (interstitialSplashLoaded() && !isShowLoadingSplash()) {
+                Admob.getInstance().onShowSplash(activity, callback);
             }
         }, timeDelay);
     }
@@ -1854,13 +1851,10 @@ public class Admob {
                     MiaLogEventManager.logClickAdsEvent(context, rewardedAd.getAdUnitId());
                 }
             });
-            rewardedAd.show(context, new OnUserEarnedRewardListener() {
-                @Override
-                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-                    if (adCallback != null) {
-                        adCallback.onUserEarnedReward(rewardItem);
+            rewardedAd.show(context, rewardItem -> {
+                if (adCallback != null) {
+                    adCallback.onUserEarnedReward(rewardItem);
 
-                    }
                 }
             });
         }
@@ -1873,9 +1867,7 @@ public class Admob {
         }
         if (rewardedInterstitialAd == null) {
             initRewardAds(activity, nativeId);
-
             adCallback.onRewardedAdFailedToShow(0);
-            return;
         } else {
             rewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override
@@ -1910,12 +1902,9 @@ public class Admob {
                         AppOpenManager.getInstance().disableAdResumeByClickAction();
                 }
             });
-            rewardedInterstitialAd.show(activity, new OnUserEarnedRewardListener() {
-                @Override
-                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-                    if (adCallback != null) {
-                        adCallback.onUserEarnedReward(rewardItem);
-                    }
+            rewardedInterstitialAd.show(activity, rewardItem -> {
+                if (adCallback != null) {
+                    adCallback.onUserEarnedReward(rewardItem);
                 }
             });
         }
@@ -1928,9 +1917,7 @@ public class Admob {
         }
         if (rewardedAd == null) {
             initRewardAds(context, nativeId);
-
             adCallback.onRewardedAdFailedToShow(0);
-            return;
         } else {
             rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override
@@ -1969,13 +1956,10 @@ public class Admob {
                     MiaLogEventManager.logClickAdsEvent(context, rewardedAd.getAdUnitId());
                 }
             });
-            rewardedAd.show(context, new OnUserEarnedRewardListener() {
-                @Override
-                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-                    if (adCallback != null) {
-                        adCallback.onUserEarnedReward(rewardItem);
+            rewardedAd.show(context, rewardItem -> {
+                if (adCallback != null) {
+                    adCallback.onUserEarnedReward(rewardItem);
 
-                    }
                 }
             });
         }
@@ -1995,19 +1979,19 @@ public class Admob {
             MessageDigest digest = MessageDigest
                     .getInstance("MD5");
             digest.update(s.getBytes());
-            byte messageDigest[] = digest.digest();
+            byte[] messageDigest = digest.digest();
 
             // Create Hex String
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < messageDigest.length; i++) {
-                String h = Integer.toHexString(0xFF & messageDigest[i]);
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : messageDigest) {
+                StringBuilder h = new StringBuilder(Integer.toHexString(0xFF & b));
                 while (h.length() < 2)
-                    h = "0" + h;
+                    h.insert(0, "0");
                 hexString.append(h);
             }
             return hexString.toString();
 
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
@@ -2714,18 +2698,17 @@ public class Admob {
                     }
                 } catch (Exception e) {
                     dialog = null;
-                    e.printStackTrace();
                 }
                 dialog = new PrepareLoadingAdsDialog(activity);
                 try {
                     dialog.show();
                 } catch (Exception e) {
+                    assert adListener != null;
                     adListener.onNextAction();
                     return;
                 }
             } catch (Exception e) {
                 dialog = null;
-                e.printStackTrace();
             }
 
             new Handler().postDelayed(() -> {
@@ -2753,10 +2736,12 @@ public class Admob {
                         dialog.dismiss();
                     isShowLoadingSplash = false;
                     Log.e(TAG, "onShowSplash:   show fail in background after show loading ad");
+                    assert adListener != null;
                     adListener.onAdFailedToShow(new AdError(0, " show fail in background after show loading ad", "MiaAd"));
                 }
             }, 800);
         } else {
+            assert adListener != null;
             adListener.onAdFailedToShow(new AdError(0, " show fail in background after show loading ad", "MiaAd"));
             Log.e(TAG, "onShowSplash: fail on background");
             isShowLoadingSplash = false;
@@ -2954,18 +2939,17 @@ public class Admob {
                     }
                 } catch (Exception e) {
                     dialog = null;
-                    e.printStackTrace();
                 }
                 dialog = new PrepareLoadingAdsDialog(activity);
                 try {
                     dialog.show();
                 } catch (Exception e) {
+                    assert adListener != null;
                     adListener.onNextAction();
                     return;
                 }
             } catch (Exception e) {
                 dialog = null;
-                e.printStackTrace();
             }
             new Handler().postDelayed(() -> {
                 if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
@@ -2992,11 +2976,13 @@ public class Admob {
                         dialog.dismiss();
                     isShowLoadingSplash = false;
                     Log.e(TAG, "onShowSplash: show fail in background after show loading ad");
+                    assert adListener != null;
                     adListener.onAdFailedToShow(new AdError(0, " show fail in background after show loading ad", "AperoAd"));
                 }
             }, 800);
 
         } else {
+            assert adListener != null;
             adListener.onAdFailedToShow(new AdError(0, " show fail in background after show loading ad", "AperoAd"));
             Log.e(TAG, "onShowSplash: fail on background");
             isShowLoadingSplash = false;
@@ -3193,18 +3179,17 @@ public class Admob {
                     }
                 } catch (Exception e) {
                     dialog = null;
-                    e.printStackTrace();
                 }
                 dialog = new PrepareLoadingAdsDialog(activity);
                 try {
                     dialog.show();
                 } catch (Exception e) {
+                    assert adListener != null;
                     adListener.onNextAction();
                     return;
                 }
             } catch (Exception e) {
                 dialog = null;
-                e.printStackTrace();
             }
             new Handler().postDelayed(() -> {
                 if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
@@ -3231,11 +3216,13 @@ public class Admob {
                         dialog.dismiss();
                     isShowLoadingSplash = false;
                     Log.e(TAG, "onShowSplash: show fail in background after show loading ad");
+                    assert adListener != null;
                     adListener.onAdFailedToShow(new AdError(0, " show fail in background after show loading ad", "AperoAd"));
                 }
             }, 800);
 
         } else {
+            assert adListener != null;
             adListener.onAdFailedToShow(new AdError(0, " show fail in background after show loading ad", "AperoAd"));
             Log.e(TAG, "onShowSplash: fail on background");
             isShowLoadingSplash = false;
@@ -3437,7 +3424,6 @@ public class Admob {
                 }
             } catch (Exception e) {
                 dialog = null;
-                e.printStackTrace();
             }
             new Handler().postDelayed(() -> {
                 if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {

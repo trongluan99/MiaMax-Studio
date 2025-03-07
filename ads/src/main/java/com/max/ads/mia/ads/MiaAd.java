@@ -228,7 +228,7 @@ public class MiaAd {
         MaxAds.getInstance().loadSplashInterstitialAds(context, id, timeOut, timeDelay, true, adListener);
     }
 
-    public void onCheckShowSplashWhenFailMax(Activity activity, MaxAdCallback callback, int timeDelay) {
+    public void onCheckShowSplashWhenFailMax(AppCompatActivity activity, MaxAdCallback callback, int timeDelay) {
         MaxAds.getInstance().onCheckShowSplashWhenFail(activity, callback, timeDelay);
     }
 

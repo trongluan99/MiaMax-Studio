@@ -48,8 +48,7 @@ import java.util.List;
 
 public class AppOpenManager implements Application.ActivityLifecycleCallbacks, LifecycleObserver {
     private static final String TAG = "AppOpenManager";
-    public static final String AD_UNIT_ID_TEST = "ca-app-pub-3940256099942544/3419835294";
-
+    @SuppressLint("StaticFieldLeak")
     private static volatile AppOpenManager INSTANCE;
     private AppOpenAd appResumeAd = null;
     private AppOpenAd splashAd = null;

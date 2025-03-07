@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
@@ -46,7 +47,7 @@ public class MaxAds {
     private int currentClicked = 0;
     private int numShowAds = 3;
 
-    private int maxClickAds = 100;
+    private final int maxClickAds = 100;
     private Handler handlerTimeout;
     private Runnable rdTimeout;
     private PrepareLoadingAdsDialog dialog;
@@ -174,7 +175,7 @@ public class MaxAds {
 
         interstitialSplash.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
                 Log.e(TAG, "loadSplashInterstitialAds end time loading success: " + Calendar.getInstance().getTimeInMillis() + " time limit:" + isTimeout);
                 if (isTimeout) return;
                 if (isTimeDelay) {
@@ -184,25 +185,27 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
             }
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
-                if (disableAdResumeWhenClickAds)
+            public void onAdClicked(@NonNull MaxAd ad) {
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.e(TAG, "onAdLoadFailed: " + error.getMessage());
                 if (isTimeout) return;
                 if (adListener != null) {
@@ -211,12 +214,16 @@ public class MaxAds {
                     }
                     Log.e(TAG, "loadSplashInterstitialAds: load fail " + error.getMessage());
                     adListener.onAdFailedToLoad(error);
+                    adListener.onNextAction();
                 }
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
-
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
+                if (adListener != null) {
+                    adListener.onAdFailedToShow(error);
+                    adListener.onNextAction();
+                }
             }
         });
     }
@@ -238,8 +245,10 @@ public class MaxAds {
             //check delay show ad splash
             if (interstitialSplash != null && interstitialSplash.isReady()) {
                 Log.i(TAG, "loadSplashInterstitialAds:show ad on delay ");
-                if (showSplashIfReady) onShowSplash(context, adListener);
-                else adListener.onAdSplashReady();
+                if (showSplashIfReady)
+                    onShowSplash((AppCompatActivity) context, adListener);
+                else
+                    adListener.onAdSplashReady();
                 return;
             }
             Log.i(TAG, "loadSplashInterstitialAds: delay validate");
@@ -253,13 +262,14 @@ public class MaxAds {
                 isTimeout = true;
                 if (interstitialSplash != null && interstitialSplash.isReady()) {
                     Log.i(TAG, "loadSplashInterstitialAds:show ad on timeout ");
-                    if (showSplashIfReady) onShowSplash(context, adListener);
-                    else adListener.onAdSplashReady();
-
+                    if (showSplashIfReady)
+                        onShowSplash((AppCompatActivity) context, adListener);
+                    else
+                        adListener.onAdSplashReady();
                     return;
                 }
                 if (adListener != null) {
-                    adListener.onAdClosed();
+                    adListener.onNextAction();
                     isShowLoadingSplash = false;
                 }
             };
@@ -270,39 +280,43 @@ public class MaxAds {
 
         interstitialSplash.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
                 Log.e(TAG, "loadSplashInterstitialAds end time loading success: " + Calendar.getInstance().getTimeInMillis() + " time limit:" + isTimeout);
                 if (isTimeout) return;
                 if (isTimeDelay) {
-                    if (showSplashIfReady) onShowSplash((AppCompatActivity) context, adListener);
-                    else adListener.onAdSplashReady();
+                    if (showSplashIfReady)
+                        onShowSplash((AppCompatActivity) context, adListener);
+                    else
+                        adListener.onAdSplashReady();
                     Log.i(TAG, "loadSplashInterstitialAds: show ad on loaded ");
                 }
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
             }
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
+            public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (adListener != null) {
                     adListener.onAdClicked();
                 }
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.e(TAG, "onAdLoadFailed: " + error.getMessage());
                 if (isTimeout) return;
                 if (adListener != null) {
@@ -316,13 +330,16 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
-
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
+                if (adListener != null) {
+                    adListener.onAdFailedToShow(error);
+                    adListener.onNextAction();
+                }
             }
         });
     }
 
-    public void onShowSplash(Activity activity, MaxAdCallback adListener) {
+    public void onShowSplash(AppCompatActivity activity, MaxAdCallback adListener) {
         isShowLoadingSplash = true;
         Log.d(TAG, "onShowSplash: ");
         if (handlerTimeout != null && rdTimeout != null) {
@@ -333,6 +350,7 @@ public class MaxAds {
             adListener.onAdLoaded();
         }
         if (interstitialSplash == null) {
+            assert adListener != null;
             adListener.onAdClosed();
             return;
         }
@@ -344,12 +362,12 @@ public class MaxAds {
         });
         interstitialSplash.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
                 Log.d(TAG, "onAdDisplayed: ");
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
@@ -359,7 +377,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(false);
                 AppOpenManager.getInstance().setInterstitialShowing(false);
                 isShowLoadingSplash = false;
@@ -376,27 +394,32 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
+            public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, interstitialSplash.getAdUnitId());
                 if (adListener != null) {
                     adListener.onAdClicked();
                 }
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
 
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
                 Log.d(TAG, "onAdDisplayFailed: " + error.getMessage());
                 interstitialSplash = null;
                 isShowLoadingSplash = false;
                 if (adListener != null) {
                     adListener.onAdFailedToShow(error);
+                    if (!openActivityAfterShowInterAds) {
+                        adListener.onNextAction();
+                    }
                     if (dialog != null) {
                         dialog.dismiss();
                     }
@@ -425,7 +448,7 @@ public class MaxAds {
                 return;
             }
             new Handler().postDelayed(() -> {
-                if (ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+                if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                     if (openActivityAfterShowInterAds && adListener != null) {
                         adListener.onNextAction();
                         new Handler().postDelayed(() -> {
@@ -457,7 +480,7 @@ public class MaxAds {
         }
     }
 
-    public void onCheckShowSplashWhenFail(Activity activity, MaxAdCallback callback, int timeDelay) {
+    public void onCheckShowSplashWhenFail(AppCompatActivity activity, MaxAdCallback callback, int timeDelay) {
         if (MaxAds.getInstance().getInterstitialSplash() != null && !MaxAds.getInstance().isShowLoadingSplash) {
             new Handler(activity.getMainLooper()).postDelayed(() -> {
                 if (MaxAds.getInstance().getInterstitialSplash().isReady()) {
@@ -478,34 +501,34 @@ public class MaxAds {
         final MaxInterstitialAd interstitialAd = new MaxInterstitialAd(id, context);
         interstitialAd.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: getInterstitialAds");
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
+            public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (disableAdResumeWhenClickAds)
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.e(TAG, "onAdLoadFailed: getInterstitialAds " + error.getMessage());
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
 
             }
         });
@@ -547,12 +570,13 @@ public class MaxAds {
         });
         interstitialAd.setListener(new MaxAdListener() {
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
+                callback.onAdLoaded();
                 Log.d("DEV_ADS", "onAdLoaded: ");
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
                 SharePreferenceUtils.setLastImpressionInterstitialTime(context);
@@ -561,7 +585,7 @@ public class MaxAds {
 
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(false);
                 AppOpenManager.getInstance().setInterstitialShowing(false);
                 if (callback != null && ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
@@ -581,24 +605,24 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
+            public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (callback != null) {
                     callback.onAdClicked();
                 }
-                if (disableAdResumeWhenClickAds){
+                if (disableAdResumeWhenClickAds) {
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
                 }
                 Log.d("DEV_ADS", "onAdClicked: ");
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.d("DEV_ADS", "onAdLoadFailed: ");
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
                 Log.e(TAG, "onAdDisplayFailed: " + error.getMessage());
                 Log.d("DEV_ADS", "onAdDisplayFailed: ");
                 if (callback != null) {
@@ -628,30 +652,40 @@ public class MaxAds {
                     if (dialog != null && dialog.isShowing()) dialog.dismiss();
                     dialog = new PrepareLoadingAdsDialog(context);
                     try {
+                        Log.d(TAG, "showInterstitialAd: 1");
                         callback.onInterstitialShow();
                         dialog.setCancelable(false);
                         dialog.show();
                     } catch (Exception e) {
+                        Log.d(TAG, "showInterstitialAd: 2");
                         callback.onAdClosed();
                         return;
                     }
                 } catch (Exception e) {
+                    Log.d(TAG, "showInterstitialAd: 3");
                     dialog = null;
                 }
 
                 new Handler().postDelayed(() -> {
                     if (ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
                         if (openActivityAfterShowInterAds && callback != null) {
+                            Log.d(TAG, "showInterstitialAd: 4");
                             callback.onNextAction();
                             new Handler().postDelayed(() -> {
-                                if (dialog != null && dialog.isShowing() && !context.isDestroyed())
+                                if (dialog != null && dialog.isShowing() && !context.isDestroyed()){
+                                    Log.d(TAG, "showInterstitialAd: 5");
                                     dialog.dismiss();
+                                }
                             }, 1500);
                         }
+                        Log.d(TAG, "showInterstitialAd: 6");
                         interstitialAd.showAd(context);
                     } else {
-                        if (dialog != null && dialog.isShowing() && !context.isDestroyed())
+                        if (dialog != null && dialog.isShowing() && !context.isDestroyed()){
+                            Log.d(TAG, "showInterstitialAd: 7");
                             dialog.dismiss();
+                        }
+                        Log.d(TAG, "showInterstitialAd: 8");
                         callback.onAdClosed();
                     }
                 }, 800);
@@ -709,17 +743,17 @@ public class MaxAds {
         adContainer.addView(adView);
         adView.setListener(new MaxAdViewAdListener() {
             @Override
-            public void onAdExpanded(MaxAd ad) {
+            public void onAdExpanded(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdCollapsed(MaxAd ad) {
+            public void onAdCollapsed(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: banner");
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -727,24 +761,24 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
+            public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (disableAdResumeWhenClickAds)
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.e(TAG, "onAdLoadFailed: banner " + error.getMessage() + "   code:" + error.getCode());
                 containerShimmer.stopShimmer();
                 adContainer.setVisibility(View.GONE);
@@ -752,7 +786,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
 
             }
         });
@@ -780,17 +814,17 @@ public class MaxAds {
         adContainer.addView(adView);
         adView.setListener(new MaxAdViewAdListener() {
             @Override
-            public void onAdExpanded(MaxAd ad) {
+            public void onAdExpanded(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdCollapsed(MaxAd ad) {
+            public void onAdCollapsed(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: banner");
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -798,19 +832,19 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
                 if (adCallback != null) {
                     adCallback.onAdImpression();
                 }
             }
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
 
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
+            public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 if (adCallback != null) {
                     adCallback.onAdClicked();
@@ -820,7 +854,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.e(TAG, "onAdLoadFailed: banner " + error.getMessage() + "   code:" + error.getCode());
                 containerShimmer.stopShimmer();
                 adContainer.setVisibility(View.GONE);
@@ -828,7 +862,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
 
             }
         });
@@ -884,7 +918,7 @@ public class MaxAds {
         });
         nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
             @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
+            public void onNativeAdLoaded(MaxNativeAdView nativeAdView, @NonNull MaxAd ad) {
                 Log.d(TAG, "onNativeAdLoaded ");
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -893,7 +927,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onNativeAdLoadFailed(final String adUnitId, final MaxError error) {
+            public void onNativeAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.e(TAG, "onAdFailedToLoad: " + error.getMessage());
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -901,7 +935,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onNativeAdClicked(final MaxAd ad) {
+            public void onNativeAdClicked(@NonNull MaxAd ad) {
                 Log.e(TAG, "`onNativeAdClicked`: ");
                 containerShimmer.setVisibility(View.VISIBLE);
                 containerShimmer.startShimmer();
@@ -941,14 +975,14 @@ public class MaxAds {
         });
         nativeAdLoader.setNativeAdListener(new MaxNativeAdListener() {
             @Override
-            public void onNativeAdLoaded(final MaxNativeAdView nativeAdView, final MaxAd ad) {
+            public void onNativeAdLoaded(MaxNativeAdView nativeAdView, @NonNull MaxAd ad) {
                 Log.d(TAG, "onNativeAdLoaded ");
                 populateNativeAdView(nativeAdView, nativeAdLayout, containerShimmer);
                 callback.onUnifiedNativeAdLoaded(nativeAdView);
             }
 
             @Override
-            public void onNativeAdLoadFailed(final String adUnitId, final MaxError error) {
+            public void onNativeAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.e(TAG, "onAdFailedToLoad: " + error.getMessage());
                 containerShimmer.stopShimmer();
                 containerShimmer.setVisibility(View.GONE);
@@ -958,7 +992,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onNativeAdClicked(final MaxAd ad) {
+            public void onNativeAdClicked(@NonNull MaxAd ad) {
                 Log.e(TAG, "`onNativeAdClicked`: ");
                 containerShimmer.setVisibility(View.VISIBLE);
                 containerShimmer.startShimmer();
@@ -1035,29 +1069,29 @@ public class MaxAds {
         MaxRewardedAd rewardedAd = MaxRewardedAd.getInstance(id, activity);
         rewardedAd.setListener(new MaxRewardedAdListener() {
             @Override
-            public void onRewardedVideoStarted(MaxAd ad) {
+            public void onRewardedVideoStarted(@NonNull MaxAd ad) {
                 Log.d(TAG, "onRewardedVideoStarted: ");
             }
 
             @Override
-            public void onRewardedVideoCompleted(MaxAd ad) {
+            public void onRewardedVideoCompleted(@NonNull MaxAd ad) {
                 Log.d(TAG, "onRewardedVideoCompleted: ");
             }
 
             @Override
-            public void onUserRewarded(MaxAd ad, MaxReward reward) {
+            public void onUserRewarded(@NonNull MaxAd ad, @NonNull MaxReward reward) {
                 callback.onUserRewarded(reward);
                 Log.d(TAG, "onUserRewarded: ");
             }
 
             @Override
-            public void onAdLoaded(MaxAd ad) {
+            public void onAdLoaded(@NonNull MaxAd ad) {
                 Log.d(TAG, "onAdLoaded: ");
                 callback.onAdLoaded();
             }
 
             @Override
-            public void onAdDisplayed(MaxAd ad) {
+            public void onAdDisplayed(@NonNull MaxAd ad) {
                 Log.d(TAG, "onAdDisplayed: ");
                 callback.onAdDisplayed();
                 AppOpenManager.getInstance().setInterstitialShowing(true);
@@ -1065,7 +1099,7 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdHidden(MaxAd ad) {
+            public void onAdHidden(@NonNull MaxAd ad) {
                 callback.onAdClosed();
                 Log.d(TAG, "onAdHidden: ");
                 AppOpenManager.getInstance().setInterstitialShowing(false);
@@ -1073,23 +1107,23 @@ public class MaxAds {
             }
 
             @Override
-            public void onAdClicked(MaxAd ad) {
+            public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 callback.onAdClicked();
-                if (disableAdResumeWhenClickAds){
+                if (disableAdResumeWhenClickAds) {
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
                     AppOpenManager.getInstance().disableAdResumeByClickAction();
                 }
             }
 
             @Override
-            public void onAdLoadFailed(String adUnitId, MaxError error) {
+            public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                 Log.d(TAG, "onAdLoadFailed: " + error.getMessage());
                 callback.onAdFailedToLoad(error);
             }
 
             @Override
-            public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+            public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
                 Log.d(TAG, "onAdDisplayFailed: " + error.getMessage());
                 callback.onAdFailedToShow(error);
             }
@@ -1114,29 +1148,29 @@ public class MaxAds {
             });
             maxRewardedAd.setListener(new MaxRewardedAdListener() {
                 @Override
-                public void onRewardedVideoStarted(MaxAd ad) {
+                public void onRewardedVideoStarted(@NonNull MaxAd ad) {
                     Log.d(TAG, "onRewardedVideoStarted: ");
                 }
 
                 @Override
-                public void onRewardedVideoCompleted(MaxAd ad) {
+                public void onRewardedVideoCompleted(@NonNull MaxAd ad) {
                     Log.d(TAG, "onRewardedVideoCompleted: ");
                 }
 
                 @Override
-                public void onUserRewarded(MaxAd ad, MaxReward reward) {
+                public void onUserRewarded(@NonNull MaxAd ad, @NonNull MaxReward reward) {
                     callback.onUserRewarded(reward);
                     Log.d(TAG, "onUserRewarded: ");
                 }
 
                 @Override
-                public void onAdLoaded(MaxAd ad) {
+                public void onAdLoaded(@NonNull MaxAd ad) {
                     Log.d(TAG, "onAdLoaded: ");
                     callback.onAdLoaded();
                 }
 
                 @Override
-                public void onAdDisplayed(MaxAd ad) {
+                public void onAdDisplayed(@NonNull MaxAd ad) {
                     Log.d(TAG, "onAdDisplayed: ");
                     callback.onAdDisplayed();
                     AppOpenManager.getInstance().setInterstitialShowing(true);
@@ -1144,7 +1178,7 @@ public class MaxAds {
                 }
 
                 @Override
-                public void onAdHidden(MaxAd ad) {
+                public void onAdHidden(@NonNull MaxAd ad) {
                     callback.onAdClosed();
                     Log.d(TAG, "onAdHidden: ");
                     AppOpenManager.getInstance().setInterstitialShowing(false);
@@ -1152,23 +1186,23 @@ public class MaxAds {
                 }
 
                 @Override
-                public void onAdClicked(MaxAd ad) {
+                public void onAdClicked(@NonNull MaxAd ad) {
                     MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                     callback.onAdClicked();
-                    if (disableAdResumeWhenClickAds){
+                    if (disableAdResumeWhenClickAds) {
                         AppOpenMax.getInstance().disableAdResumeByClickAction();
                         AppOpenManager.getInstance().disableAdResumeByClickAction();
                     }
                 }
 
                 @Override
-                public void onAdLoadFailed(String adUnitId, MaxError error) {
+                public void onAdLoadFailed(@NonNull String adUnitId, @NonNull MaxError error) {
                     Log.d(TAG, "onAdLoadFailed: " + error.getMessage());
                     callback.onAdFailedToLoad(error);
                 }
 
                 @Override
-                public void onAdDisplayFailed(MaxAd ad, MaxError error) {
+                public void onAdDisplayFailed(@NonNull MaxAd ad, @NonNull MaxError error) {
                     Log.d(TAG, "onAdDisplayFailed: " + error.getMessage());
                     callback.onAdFailedToShow(error);
                 }

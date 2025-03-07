@@ -7,8 +7,6 @@ import android.os.Bundle;
 import com.max.ads.mia.R;
 
 public class PrepareLoadingAdsDialog extends Dialog {
-
-
     public PrepareLoadingAdsDialog(Context context) {
         super(context, R.style.AppTheme);
     }
