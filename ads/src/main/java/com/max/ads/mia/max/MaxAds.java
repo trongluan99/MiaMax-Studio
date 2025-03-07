@@ -197,7 +197,7 @@ public class MaxAds {
 
             @Override
             public void onAdClicked(@NonNull MaxAd ad) {
-                if (disableAdResumeWhenClickAds){
+                if (disableAdResumeWhenClickAds) {
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
                     AppOpenManager.getInstance().disableAdResumeByClickAction();
                 }
@@ -309,7 +309,7 @@ public class MaxAds {
                 if (adListener != null) {
                     adListener.onAdClicked();
                 }
-                if (disableAdResumeWhenClickAds){
+                if (disableAdResumeWhenClickAds) {
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
                     AppOpenManager.getInstance().disableAdResumeByClickAction();
                 }
@@ -399,7 +399,7 @@ public class MaxAds {
                 if (adListener != null) {
                     adListener.onAdClicked();
                 }
-                if (disableAdResumeWhenClickAds){
+                if (disableAdResumeWhenClickAds) {
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
                     AppOpenManager.getInstance().disableAdResumeByClickAction();
                 }
@@ -579,13 +579,13 @@ public class MaxAds {
             public void onAdDisplayed(@NonNull MaxAd ad) {
                 AppOpenMax.getInstance().setInterstitialShowing(true);
                 AppOpenManager.getInstance().setInterstitialShowing(true);
-                SharePreferenceUtils.setLastImpressionInterstitialTime(context);
                 Log.d("DEV_ADS", "onAdDisplayed: ");
             }
 
 
             @Override
             public void onAdHidden(@NonNull MaxAd ad) {
+                SharePreferenceUtils.setLastImpressionInterstitialTime(context);
                 AppOpenMax.getInstance().setInterstitialShowing(false);
                 AppOpenManager.getInstance().setInterstitialShowing(false);
                 if (callback != null && ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
@@ -672,7 +672,7 @@ public class MaxAds {
                             Log.d(TAG, "showInterstitialAd: 4");
                             callback.onNextAction();
                             new Handler().postDelayed(() -> {
-                                if (dialog != null && dialog.isShowing() && !context.isDestroyed()){
+                                if (dialog != null && dialog.isShowing() && !context.isDestroyed()) {
                                     Log.d(TAG, "showInterstitialAd: 5");
                                     dialog.dismiss();
                                 }
@@ -681,7 +681,7 @@ public class MaxAds {
                         Log.d(TAG, "showInterstitialAd: 6");
                         interstitialAd.showAd(context);
                     } else {
-                        if (dialog != null && dialog.isShowing() && !context.isDestroyed()){
+                        if (dialog != null && dialog.isShowing() && !context.isDestroyed()) {
                             Log.d(TAG, "showInterstitialAd: 7");
                             dialog.dismiss();
                         }
@@ -773,8 +773,10 @@ public class MaxAds {
             @Override
             public void onAdClicked(@NonNull MaxAd ad) {
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds) {
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
             }
 
             @Override
@@ -849,8 +851,10 @@ public class MaxAds {
                 if (adCallback != null) {
                     adCallback.onAdClicked();
                 }
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
             }
 
             @Override
@@ -944,8 +948,10 @@ public class MaxAds {
 
                 nativeAdView = new MaxNativeAdView(binder, activity);
                 nativeAdLoader.loadAd(nativeAdView);
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
             }
         });
         nativeAdLoader.loadAd(nativeAdView);
@@ -1003,6 +1009,7 @@ public class MaxAds {
                 nativeAdLoader.loadAd(nativeAdView);
                 if (disableAdResumeWhenClickAds) {
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
                 }
 
                 callback.onAdClicked();
@@ -1058,8 +1065,10 @@ public class MaxAds {
                 Log.e(TAG, "onNativeAdClicked: ");
                 MiaLogEventManager.logClickAdsEvent(context, ad.getAdUnitId());
                 callback.onAdClicked();
-                if (disableAdResumeWhenClickAds)
+                if (disableAdResumeWhenClickAds){
                     AppOpenMax.getInstance().disableAdResumeByClickAction();
+                    AppOpenManager.getInstance().disableAdResumeByClickAction();
+                }
             }
         });
         nativeAdLoader.loadAd(nativeAdView);
