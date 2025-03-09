@@ -50,7 +50,7 @@ dependencies {
 
     implementation 'com.applovin:applovin-sdk:12.5.0'
 
-    // Mediation
+    // Mediation Admob
     implementation 'com.applovin.mediation:google-adapter:22.4.0.0'
     implementation 'com.applovin.mediation:ironsource-adapter:7.5.1.0.1'
     implementation 'com.applovin.mediation:vungle-adapter:7.3.2.0'
@@ -58,8 +58,17 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.3.1'
     implementation 'com.applovin.mediation:bytedance-adapter:6.1.0.6.0'
     implementation 'com.applovin.mediation:unityads-adapter:4.10.0.0'
-    implementation 'com.applovin.mediation:mintegral-adapter:16.7.71.0'
     implementation 'com.applovin.mediation:fyber-adapter:8.2.7.1'
+
+    // Mediation Max
+    implementation 'com.applovin.mediation:google-adapter:22.4.0.0'
+    implementation 'com.applovin.mediation:ironsource-adapter:7.5.1.0.1'
+    implementation 'com.applovin.mediation:vungle-adapter:6.12.1.1'
+    implementation 'com.applovin.mediation:facebook-adapter:6.16.0.0'
+    implementation 'com.applovin.mediation:mintegral-adapter:16.5.21.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'com.applovin.mediation:bytedance-adapter:5.5.0.4.0'
+    implementation 'com.applovin.mediation:unityads-adapter:4.9.0.0'
 
     // Facebook SDK
     implementation 'com.facebook.android:facebook-android-sdk:16.1.3'
